@@ -66,7 +66,7 @@ SENSOR_OPTIONS = {
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
     vol.Optional(CONF_INTERVAL, default=DEFAULT_INTERVAL): cv.string,
-    vol.Optional(CONF_STATE_AS_STRING, default=DEFAULT_STATE_AS_STRING): cv.string,
+    vol.Optional(CONF_STATE_AS_STRING, default=DEFAULT_STATE_AS_STRING): cv.boolean,
     vol.Required(CONF_SENSORS, default=[]): vol.Optional(cv.ensure_list, [vol.In(SENSOR_OPTIONS)]),
 })
 
@@ -91,14 +91,18 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
         _LOGGER.error("Unable to fetch data from Pollenkollen")
         return False
 
+    devices = []
+
     for sensor in sensors:
         if 'days_to_track' in sensor:
             for day in range(int(sensor['days_to_track'])):
                 for allergen in sensor['allergens']:
-                    add_devices([PollenkollSensor(rest, name, sensor, allergen, state_as_string, day)], True)
+                    devices.append(PollenkollSensor(rest, name, sensor, allergen, state_as_string, day))
         else:
             for allergen in sensor['allergens']:
-                add_devices([PollenkollSensor(rest, name, sensor, state_as_string, allergen)], True)
+                devices.append(PollenkollSensor(rest, name, sensor, allergen, state_as_string))
+
+    add_devices(devices, True)
 
 
 # pylint: disable=no-member
@@ -114,10 +118,9 @@ class PollenkollSensor(Entity):
         self._state = None
         self._day = day
         self._allergen = allergen
-        self._name = name + " " + self._city + " " + self._allergen + " day " + str(self._day)
+        self._name = "{} {} {} day {}".format(name, self._city, self._allergen, str(self._day))
         self._attributes = None
         self._result = None
-        _LOGGER.debug("STATE AS STRING: " + self._state_as_string)
 
     @property
     def name(self):
@@ -157,13 +160,11 @@ class PollenkollSensor(Entity):
                         self._attributes.update({"city": city['name']})
                         pollen = city['pollen']
 
-            value = 0
-
             for allergen in pollen:
                 if allergen['type'] == self._allergen:
                     day_value = 'day' + str(self._day) + '_value'
                     if day_value in allergen:
-                        if self._state_as_string.lower() is "false" and allergen[day_value] in STATES:
+                        if self._state_as_string is False and allergen[day_value] in STATES:
                             value = STATES[allergen[day_value]]
                         else:
                             value = allergen[day_value]
