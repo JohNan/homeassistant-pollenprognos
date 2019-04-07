@@ -63,6 +63,19 @@ SENSOR_OPTIONS = {
     'days_to_track': ('Antal dagar framåt (0-3)')
 }
 
+SENSOR_ICONS = {
+    'Al': 'mdi:leaf',
+    'Alm': 'mdi:leaf',
+    'Asp': 'mdi:leaf',
+    'Björk': 'mdi:leaf',
+    'Ek': 'mdi:leaf',
+    'Gråbo': 'mdi:flower',
+    'Gräs': 'mdi:flower',
+    'Hassel': 'mdi:leaf',
+    'Sälg': 'mdi:leaf',
+    'default': 'mdi:leaf'
+}
+
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
     vol.Optional(CONF_INTERVAL, default=DEFAULT_INTERVAL): cv.string,
@@ -144,6 +157,13 @@ class PollenkollSensor(Entity):
     def unit_of_measurement(self):
         """Return the unit of measurement."""
         return ""
+
+    @property
+    def icon(self):
+        """ Return the icon for the frontend."""
+        if self._allergen in SENSOR_ICONS:
+            return SENSOR_ICONS[self._allergen]
+        return SENSOR_ICONS['default']
 
     def update(self):
         """Get the latest data from the API and updates the state."""
