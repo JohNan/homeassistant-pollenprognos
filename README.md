@@ -21,18 +21,18 @@ STATES = {
 Place the folder `pollenniva` in `<HA_CONFIG_DIR>/custom_components`
 Add configuration to your `configuration.yaml`
 
-This will create sensors named `senson.pollenniva_CITY_ALLERGEN_day[0-3]` and the state will be the current level of that allergen
+This will create sensors named `senson.pollenniva_CITY_ALLERGEN_day_[0-3]` and the state will be the current level of that allergen.
 
 Example configuration
 
 ```
 sensor:
   - platform: pollenniva
-    scan_interval: 4 (default, optional)
-    state_as_string: false (default, optional, show states as strings as per STATES above)
+    scan_interval: 4 # (default, optional)
+    state_as_string: false # (default, optional, show states as strings as per STATES above)
     sensors:
       - city: Stockholm
-        days_to_track: 3 (0-3, optional)
+        days_to_track: 3 # (0-3, optional)
         allergens:
           - Gräs
           - Hassel
