@@ -31,7 +31,7 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 from homeassistant.components.sensor import PLATFORM_SCHEMA
-from homeassistant.components.sensor.rest import RestData
+from homeassistant.components.rest.sensor import RestData
 from homeassistant.const import (CONF_NAME)
 from dateutil import parser
 from datetime import datetime
@@ -61,6 +61,19 @@ SENSOR_OPTIONS = {
     'city': ('Stad'),
     'allergens': ('Allergener'),
     'days_to_track': ('Antal dagar framåt (0-3)')
+}
+
+SENSOR_ICONS = {
+    'Al': 'mdi:leaf',
+    'Alm': 'mdi:leaf',
+    'Asp': 'mdi:leaf',
+    'Björk': 'mdi:leaf',
+    'Ek': 'mdi:leaf',
+    'Gråbo': 'mdi:flower',
+    'Gräs': 'mdi:flower',
+    'Hassel': 'mdi:leaf',
+    'Sälg': 'mdi:leaf',
+    'default': 'mdi:leaf'
 }
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
@@ -144,6 +157,13 @@ class PollenkollSensor(Entity):
     def unit_of_measurement(self):
         """Return the unit of measurement."""
         return ""
+
+    @property
+    def icon(self):
+        """ Return the icon for the frontend."""
+        if self._allergen in SENSOR_ICONS:
+            return SENSOR_ICONS[self._allergen]
+        return SENSOR_ICONS['default']
 
     def update(self):
         """Get the latest data from the API and updates the state."""

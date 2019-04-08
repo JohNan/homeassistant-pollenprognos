@@ -40,3 +40,10 @@ sensor:
         allergens:
           - Hassel
 ```
+
+
+
+Custom card for Lovelace can be found here:
+https://github.com/isabellaalstrom/pollenkoll-card
+
+<img src="https://github.com/isabellaalstrom/pollenkoll-card/blob/master/pollenkoll-card.png" alt="Pollenkoll Lovelace Card" />
