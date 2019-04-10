@@ -32,7 +32,7 @@ sensor:
     state_as_string: false # (default, optional, show states as strings as per STATES above)
     sensors:
       - city: Stockholm
-        days_to_track: 3 # (0-3, optional)
+        days_to_track: 3 # (0-4, optional)
         allergens:
           - Gräs
           - Hassel
