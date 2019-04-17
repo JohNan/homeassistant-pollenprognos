@@ -78,7 +78,7 @@ SENSOR_ICONS = {
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
-    vol.Optional(CONF_INTERVAL, default=DEFAULT_INTERVAL): cv.string,
+    vol.Optional(CONF_INTERVAL, default=DEFAULT_INTERVAL): cv.positive_int,
     vol.Optional(CONF_STATE_AS_STRING, default=DEFAULT_STATE_AS_STRING): cv.boolean,
     vol.Required(CONF_SENSORS, default=[]): vol.Optional(cv.ensure_list, [vol.In(SENSOR_OPTIONS)]),
 })
