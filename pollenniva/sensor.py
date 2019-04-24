@@ -46,7 +46,8 @@ STATES = {
     "M": 3,
     "M-H": 4,
     "H": 5,
-    "H-H+": 6
+    "H-H+": 6,
+    "H+": 7
 }
 
 DEFAULT_NAME = 'Pollennivå'
