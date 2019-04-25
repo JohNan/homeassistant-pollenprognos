@@ -1,0 +1,1 @@
+"""Pollennivå Custom Component."""
