@@ -1,0 +1,8 @@
+{
+    "domain": "pollenniva",
+    "name": "pollenniva",
+    "documentation": "https://github.com/JohNan/home-assistant-pollenkoll",
+    "dependencies": [],
+    "codeowners": [],
+    "requirements": []
+  }  
