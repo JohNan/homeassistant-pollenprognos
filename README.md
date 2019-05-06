@@ -28,7 +28,7 @@ Example configuration
 ```
 sensor:
   - platform: pollenniva
-    scan_interval: 4 # (default, optional)
+    scan_interval: 14400 # (default 14400 seconds, optional)
     state_as_string: false # (default, optional, show states as strings as per STATES above)
     sensors:
       - city: Stockholm
