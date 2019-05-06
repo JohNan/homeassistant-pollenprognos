@@ -35,11 +35,10 @@ from homeassistant.const import (CONF_NAME, CONF_SCAN_INTERVAL)
 from homeassistant.util import Throttle
 from dateutil import parser
 from datetime import datetime
+from .const import VERSION
 
 _LOGGER = logging.getLogger(__name__)
 _ENDPOINT = 'https://pollenkoll.se/wp-content/themes/pollenkoll/api/get_all.json'
-
-VERSION = '1.1.0'
 
 STATES = {
     "i.h.": 0,
