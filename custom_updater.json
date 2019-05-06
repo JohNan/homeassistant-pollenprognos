@@ -8,7 +8,8 @@
       "changelog": "https://github.com/JohNan/home-assistant-pollenkoll/releases/latest",
       "resources": [
             "https://raw.githubusercontent.com/JohNan/home-assistant-pollenkoll/master/pollenniva/const.py",
-            "https://raw.githubusercontent.com/JohNan/home-assistant-pollenkoll/master/pollenniva/sensor.py"
+            "https://raw.githubusercontent.com/JohNan/home-assistant-pollenkoll/master/pollenniva/sensor.py",
+            "https://raw.githubusercontent.com/JohNan/home-assistant-pollenkoll/master/pollenniva/manifest.json",
         ]
     }
 } 
