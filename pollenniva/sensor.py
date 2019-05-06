@@ -7,11 +7,11 @@ Example configuration
 
 sensor:
   - platform: pollenniva
-    scan_interval: 4 # (default, optional)
-    state_as_string: false # (default, optional, show states as strings as per STATES below)
+    scan_interval: 14400 # (default=14400 seconds (4 hours), optional)
+    state_as_string: false # (default=false, optional, show states as strings as per STATES below)
     sensors:
       - city: Stockholm
-        days_to_track: 3 # (0-4, optional)
+        days_to_track: 4 # (default=4, values 1-4, optional)
         allergens:
           - Gräs
           - Hassel
@@ -27,19 +27,19 @@ from collections import namedtuple
 from datetime import timedelta
 
 import voluptuous as vol
-
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
 from homeassistant.components.sensor import PLATFORM_SCHEMA
 from homeassistant.components.rest.sensor import RestData
-from homeassistant.const import (CONF_NAME)
+from homeassistant.const import (CONF_NAME, CONF_SCAN_INTERVAL)
+from homeassistant.util import Throttle
 from dateutil import parser
 from datetime import datetime
 
 _LOGGER = logging.getLogger(__name__)
 _ENDPOINT = 'https://pollenkoll.se/wp-content/themes/pollenkoll/api/get_all.json'
 
-VERSION = '1.0.0'
+VERSION = '1.1.0'
 
 STATES = {
     "i.h.": 0,
@@ -50,19 +50,6 @@ STATES = {
     "H": 5,
     "H-H+": 6,
     "H+": 7
-}
-
-DEFAULT_NAME = 'Pollennivå'
-DEFAULT_STATE_AS_STRING = False
-DEFAULT_VERIFY_SSL = True
-CONF_SENSORS = 'sensors'
-CONF_INTERVAL = 'scan_interval'
-CONF_STATE_AS_STRING = 'state_as_string'
-
-SENSOR_OPTIONS = {
-    'city': ('Stad'),
-    'allergens': ('Allergener'),
-    'days_to_track': ('Antal dagar framåt (0-3)')
 }
 
 SENSOR_ICONS = {
@@ -78,13 +65,31 @@ SENSOR_ICONS = {
     'default': 'mdi:leaf'
 }
 
+DEFAULT_NAME = 'Pollennivå'
+DEFAULT_STATE_AS_STRING = False
+DEFAULT_DAYS_TO_TRACK = 3
+
+CONF_SENSORS = 'sensors'
+CONF_INTERVAL = 'scan_interval'
+CONF_STATE_AS_STRING = 'state_as_string'
+CONF_DAYS_TO_TRACK = 'days_to_track'
+CONF_ALLERGENS = 'allergens'
+CONF_CITY = 'city'
+
+SENSOR_SCHEMA = vol.Schema({
+    vol.Required(CONF_CITY): cv.string,
+    vol.Optional(CONF_ALLERGENS, []): cv.ensure_list,
+    vol.Optional(CONF_DAYS_TO_TRACK, default=DEFAULT_DAYS_TO_TRACK):
+        vol.All(vol.Coerce(int), vol.Range(min=1, max=4), msg="Only a value between 0-4 is valid"),
+})
+
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_NAME, default=DEFAULT_NAME): cv.string,
     vol.Optional(CONF_STATE_AS_STRING, default=DEFAULT_STATE_AS_STRING): cv.boolean,
-    vol.Required(CONF_SENSORS, default=[]): vol.Optional(cv.ensure_list, [vol.In(SENSOR_OPTIONS)]),
+    vol.Required(CONF_SENSORS): vol.All(cv.ensure_list, [SENSOR_SCHEMA]),
 })
 
-SCAN_INTERVAL = timedelta(hours=4)
+SCAN_INTERVAL = timedelta(seconds=14400)
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
@@ -92,41 +97,32 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     name = config.get(CONF_NAME)
     sensors = config.get(CONF_SENSORS)
     state_as_string = config.get(CONF_STATE_AS_STRING)
-    method = 'GET'
-    payload = ''
-    auth = ''
-    verify_ssl = DEFAULT_VERIFY_SSL
-    headers = {}
+    scan_interval = config.get(CONF_SCAN_INTERVAL, SCAN_INTERVAL)
 
-    rest = RestData(method, _ENDPOINT, auth, headers, payload, verify_ssl)
-    rest.update()
-
-    if rest.data is None:
-        _LOGGER.error("Unable to fetch data from Pollenkollen")
-        return False
+    api = PollenkollAPI(scan_interval)
 
     devices = []
 
     for sensor in sensors:
-        if 'days_to_track' in sensor:
-            for day in range(int(sensor['days_to_track'])):
-                for allergen in sensor['allergens']:
-                    devices.append(PollenkollSensor(rest, name, sensor, allergen, state_as_string, day))
+        if CONF_DAYS_TO_TRACK in sensor:
+            days_to_track = sensor.get(CONF_DAYS_TO_TRACK, DEFAULT_DAYS_TO_TRACK)
+            for day in range(days_to_track):
+                for allergen in sensor[CONF_ALLERGENS]:
+                    devices.append(PollennivaSensor(api, name, sensor, allergen, state_as_string, day))
         else:
-            for allergen in sensor['allergens']:
-                devices.append(PollenkollSensor(rest, name, sensor, allergen, state_as_string))
+            for allergen in sensor[CONF_ALLERGENS]:
+                devices.append(PollennivaSensor(api, name, sensor, allergen, state_as_string))
 
     add_devices(devices, True)
 
 
-# pylint: disable=no-member
-class PollenkollSensor(Entity):
+class PollennivaSensor(Entity):
     """Representation of a Pollen sensor."""
 
-    def __init__(self, rest, name, sensor, allergen, state_as_string, day=0):
+    def __init__(self, api, name, sensor, allergen, state_as_string, day=0):
         """Initialize a Pollen sensor."""
         self._state_as_string = state_as_string
-        self._rest = rest
+        self._api = api
         self._item = sensor
         self._city = sensor['city']
         self._state = None
@@ -134,7 +130,6 @@ class PollenkollSensor(Entity):
         self._allergen = allergen
         self._name = "{} {} {} day {}".format(name, self._city, self._allergen, str(self._day))
         self._attributes = None
-        self._result = None
 
     @property
     def name(self):
@@ -168,36 +163,48 @@ class PollenkollSensor(Entity):
 
     def update(self):
         """Get the latest data from the API and updates the state."""
+        pollen = {}
+        self._attributes = {}
+        self._api.update()
+
+        for cities in self._api.data:
+            for city in cities['CitiesData']:
+                if city['name'] in self._city:
+                    self._attributes.update({"last_modified": city['date_mod']})
+                    self._attributes.update({"city": city['name']})
+                    pollen = city['pollen']
+
+        for allergen in pollen:
+            if allergen['type'] == self._allergen:
+                day_value = 'day' + str(self._day) + '_value'
+                if day_value in allergen:
+                    if self._state_as_string is False and allergen[day_value] in STATES:
+                        value = STATES[allergen[day_value]]
+                    else:
+                        value = allergen[day_value]
+                    self._state = value
+                    self._attributes.update({"allergen": allergen['type']})
+                    self._attributes.update({"level": allergen[day_value]})
+                    self._attributes.update({"relative_day": allergen['day' + str(self._day) + '_relative_date']})
+                    self._attributes.update({"day": allergen['day' + str(self._day) + '_name']})
+                    self._attributes.update({"date": allergen['day' + str(self._day) + '_date']})
+                    self._attributes.update({"description": allergen['day' + str(self._day) + '_desc']})
+
+
+class PollenkollAPI:
+    """Get the latest data from Pollenkoll"""
+
+    def __init__(self, interval):
+        self._rest = RestData('GET', _ENDPOINT, None, None, None, True)
+        self.data = None
+        self.available = True
+        self.update = Throttle(interval)(self._update)
+
+    def _update(self):
+        """Get the data"""
         try:
-            pollen = {}
             self._rest.update()
-            self._result = json.loads(self._rest.data)
-            self._attributes = {}
-
-            for cities in self._result:
-                for city in cities['CitiesData']:
-                    if city['name'] in self._city:
-                        self._attributes.update({"last_modified": city['date_mod']})
-                        self._attributes.update({"city": city['name']})
-                        pollen = city['pollen']
-
-            for allergen in pollen:
-                if allergen['type'] == self._allergen:
-                    day_value = 'day' + str(self._day) + '_value'
-                    if day_value in allergen:
-                        if self._state_as_string is False and allergen[day_value] in STATES:
-                            value = STATES[allergen[day_value]]
-                        else:
-                            value = allergen[day_value]
-                        self._state = value
-                        self._attributes.update({"allergen": allergen['type']})
-                        self._attributes.update({"level": allergen[day_value]})
-                        self._attributes.update({"relative_day": allergen['day' + str(self._day) + '_relative_date']})
-                        self._attributes.update({"day": allergen['day' + str(self._day) + '_name']})
-                        self._attributes.update({"date": allergen['day' + str(self._day) + '_date']})
-                        self._attributes.update({"description": allergen['day' + str(self._day) + '_desc']})
-
-        except TypeError as e:
-            self._result = None
-            _LOGGER.error(
-                "Unable to fetch data from Pollenkoll. " + str(e))
+            self.data = json.loads(self._rest.data)
+        except TypeError:
+            _LOGGER.error("Unable to fetch data from Pollenkoll. " + str(e))
+            self.available = False

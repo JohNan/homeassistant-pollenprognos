@@ -1,7 +1,7 @@
 {
     "sensor.pollenniva": {
-      "updated_at": "2019-04-26",
-      "version": "1.0.0",
+      "updated_at": "2019-05-07",
+      "version": "1.1.0",
       "local_location": "/custom_components/pollenniva/sensor.py",
       "remote_location": "https://raw.githubusercontent.com/JohNan/home-assistant-pollenkoll/master/pollenniva/sensor.py",
       "visit_repo": "https://github.com/JohNan/home-assistant-pollenkoll",
