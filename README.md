@@ -42,8 +42,21 @@ sensor:
 ```
 
 
-
+### Custom card for Lovelace
 Custom card for Lovelace can be found here:
 https://github.com/isabellaalstrom/pollenkoll-card
 
 <img src="https://github.com/isabellaalstrom/pollenkoll-card/blob/master/pollenkoll-card.png" alt="Pollenkoll Lovelace Card" />
+
+### Automatic updates
+
+For update check of this sensor, add the following to your configuration.yaml. For more information, see [custom_updater](https://github.com/custom-components/custom_updater)
+
+Example configuration
+```
+custom_updater:
+  track:
+    - components
+  component_urls:
+    - https://raw.githubusercontent.com/JohNan/home-assistant-pollenkoll/master/custom_updater.json
+```
