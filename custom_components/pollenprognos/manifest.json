@@ -1,7 +1,8 @@
 {
   "domain": "pollenprognos",
   "name": "Pollenprognos",
-  "documentation": "https://github.com/JohNan/home-assistant-pollenkoll",
+  "documentation": "https://github.com/JohNan/homeassistant-pollenprognos",
+  "issue_tracker": "https://github.com/JohNan/homeassistant-pollenprognos/issues",
   "dependencies": [],
   "codeowners": ["@JohNan"],
   "config_flow": true,
