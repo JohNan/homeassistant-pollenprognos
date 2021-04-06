@@ -1,0 +1,31 @@
+{
+  "title": "Pollenprognos",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pollenprognos configuration",
+        "description": "Retrieves pollen forecasts"
+      },
+      "select_city": {
+        "title": "Pollenprognos - City",
+        "description": "Choose which city you want to monitor",
+        "data": {
+          "conf_city": "Select city"
+        }
+      },
+      "select_pollen": {
+        "title": "Pollenprognos - Pollen",
+        "description": "Choose which pollen you want to monitor",
+        "data": {
+          "conf_pollen": "Select pollen"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_account%]"
+    },
+    "progress": {
+      "fetch_cities": "Retrieves pollen forecasts"
+    }
+  }
+}

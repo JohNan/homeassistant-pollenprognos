@@ -1,8 +1,0 @@
-{
-    "domain": "pollenniva",
-    "name": "Pollennivå",
-    "documentation": "https://github.com/JohNan/home-assistant-pollenkoll",
-    "dependencies": [],
-    "codeowners": ["@JohNan"],
-    "requirements": []
-  }  

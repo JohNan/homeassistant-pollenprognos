@@ -1,0 +1,10 @@
+{
+  "domain": "pollenprognos",
+  "name": "Pollenprognos",
+  "documentation": "https://github.com/JohNan/home-assistant-pollenkoll",
+  "dependencies": [],
+  "codeowners": ["@JohNan"],
+  "config_flow": true,
+  "version": "v0.0.0",
+  "requirements": []
+}

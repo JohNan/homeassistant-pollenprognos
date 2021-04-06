@@ -1,0 +1,31 @@
+{
+  "title": "Pollenprognos",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Pollenprognos konfiguration",
+        "description": "Hämtar aktuella pollenprognoser"
+      },
+      "select_city": {
+        "title": "Pollenprognos - Stad",
+        "description": "Välj vilken stad du vill övervaka",
+        "data": {
+          "conf_city": "Välj stad"
+        }
+      },
+      "select_pollen": {
+        "title": "Pollenprognos - Pollen",
+        "description": "Välja vilka pollen du vill övervaka",
+        "data": {
+          "conf_pollen": "Välj pollen"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_account%]"
+    },
+    "progress": {
+      "fetch_cities": "Hämtar pollenprognoser"
+    }
+  }
+}
