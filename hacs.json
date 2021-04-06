@@ -4,5 +4,8 @@
   "homeassistant": "2021.3.0",
   "hide_default_branch": true,
   "zip_release": true,
-  "filename": "pollenprognos.zip"
+  "filename": "pollenprognos.zip",
+  "domains": [
+    "sensor"
+  ]
 }
