@@ -10,6 +10,7 @@ PLATFORMS = [SENSOR]
 CONF_CITY = 'conf_city'
 CONF_ALLERGENS = 'conf_allergens'
 CONF_NAME = 'conf_name'
+CONF_URL = 'conf_url'
 
 STATES = {
     "i.h.": 0,

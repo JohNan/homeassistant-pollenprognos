@@ -4,7 +4,7 @@ import logging
 from datetime import timedelta, datetime
 
 from .api import PollenApi
-from .const import DOMAIN, PLATFORMS
+from .const import DOMAIN, PLATFORMS, CONF_URL
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, Config
 from homeassistant.exceptions import ConfigEntryNotReady
@@ -27,7 +27,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.data.setdefault(DOMAIN, {})
 
     session = async_get_clientsession(hass)
-    client = PollenApi(session)
+    client = PollenApi(session, entry.data[CONF_URL])
 
     coordinator = PollenprognosDataUpdateCoordinator(hass, client=client)
     await coordinator.async_refresh()
@@ -40,7 +40,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     for platform in PLATFORMS:
         if entry.options.get(platform, True):
             coordinator.platforms.append(platform)
-            hass.async_add_job(
+            hass.async_create_task(
                 hass.config_entries.async_forward_entry_setup(entry, platform)
             )
 

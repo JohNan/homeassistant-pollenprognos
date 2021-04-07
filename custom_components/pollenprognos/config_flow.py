@@ -1,11 +1,14 @@
+import logging
+
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 
 from .api import PollenApi
 from homeassistant import config_entries
-from .const import PLATFORMS, DOMAIN, CONF_ALLERGENS, CONF_NAME, CONF_CITY
-from homeassistant.core import callback
+from .const import DOMAIN, CONF_ALLERGENS, CONF_NAME, CONF_CITY, CONF_URL
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
+
+_LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
 class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -22,21 +25,47 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None):
         """Handle a flow initialized by the user."""
+        errors = {}
+        if user_input is not None:
+            try:
+                cv.url(user_input.get(CONF_URL, ""))
+                self._init_info[CONF_URL] = user_input[CONF_URL]
+                return await self.async_step_fetch_cities(url=user_input.get(CONF_URL, ""))
+            except vol.Invalid:
+                errors["base"] = "bad_host"
+
+        return self.async_show_form(
+            step_id="user",
+            errors=errors,
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_URL, default=""): str
+                }
+            )
+        )
+
+    async def async_step_fetch_cities(self, url=None):
         if not self.task_fetch_cities:
-            if not self.task_fetch_cities:
-                self.task_fetch_cities = self.hass.async_create_task(self._async_task_fetch_cities())
-                return self.async_show_progress(
-                    step_id="user",
-                    progress_action="fetch_cities",
-                )
+            self.task_fetch_cities = self.hass.async_create_task(self._async_task_fetch_cities(url))
+            return self.async_show_progress(
+                step_id="fetch_cities",
+                progress_action="fetch_cities",
+            )
 
         # noinspection PyBroadException
         try:
             await self.task_fetch_cities
         except Exception:  # pylint: disable=broad-except
-            return self.async_show_progress_done(next_step_id="install_failed")
+            return self.async_show_progress_done(next_step_id="fetch_failed")
+
+        if self.data is None:
+            return self.async_show_progress_done(next_step_id="fetch_failed")
 
         return self.async_show_progress_done(next_step_id="select_city")
+
+    async def async_step_fetch_failed(self, user_input=None):
+        """Fetching pollen data failed."""
+        return self.async_abort(reason="fetch_data_failed")
 
     async def async_step_select_city(self, user_input=None):
         if user_input is not None:
@@ -75,11 +104,12 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             )
         )
 
-    async def _async_task_fetch_cities(self):
+    async def _async_task_fetch_cities(self, url):
         try:
             session = async_create_clientsession(self.hass)
-            client = PollenApi(session)
+            client = PollenApi(session, url)
             self.data = await client.async_get_data()
+            _LOGGER.debug("Fetched data: %s", self.data)
         finally:
             self.hass.async_create_task(
                 self.hass.config_entries.flow.async_configure(flow_id=self.flow_id)
