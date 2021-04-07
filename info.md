@@ -1,6 +1,9 @@
 # Home Assistant Pollenprognos
 
-Integration for monitoring pollen
+Integration for monitoring pollen. 
+
+#### Important information
+To be able to use this integration you need a secret URL to be able to fetch the data. Ask around with your friends in the community.  
 
 ### Install with HACS (recommended)
 Add the url to the repository as a custom integration.
