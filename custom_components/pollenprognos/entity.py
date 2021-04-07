@@ -20,7 +20,7 @@ class PollenEntity(CoordinatorEntity):
             "identifiers": {(DOMAIN, self.config_entry.data[CONF_NAME])},
             "name": f"{NAME} {self.config_entry.data[CONF_NAME]}",
             "model": VERSION,
-            "manufacturer": "Pollenkollen.se",
+            "manufacturer": "Pollenprognos",
         }
 
     @property

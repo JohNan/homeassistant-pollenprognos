@@ -1,5 +1,5 @@
 """
-Support for getting current pollen levels from Pollenkollen.se
+Support for getting current pollen levels
 """
 
 import logging

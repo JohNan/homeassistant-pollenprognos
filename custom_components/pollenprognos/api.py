@@ -16,13 +16,13 @@ HEADERS = {
 
 
 class PollenApi:
-    def __init__(self, session: aiohttp.ClientSession) -> None:
+    def __init__(self, session: aiohttp.ClientSession, url) -> None:
         self._session = session
+        self._url = url
 
     async def async_get_data(self) -> dict:
         """Get data from the API."""
-        url = "https://pollenkoll.se/wp-json/pollenkoll/v1/app-complete?secret=830842cf-4d86-412d-a343-16edc27f5c75&platform=android&version=3"
-        return await self.api_wrapper("get", url)
+        return await self.api_wrapper("get", self._url)
 
     async def api_wrapper(
             self, method: str, url: str, data: dict = {}, headers: dict = {}

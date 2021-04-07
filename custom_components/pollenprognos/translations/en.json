@@ -3,7 +3,14 @@
   "config": {
     "step": {
       "user": {
-        "title": "Pollenprognos configuration",
+        "title": "Pollenprognos",
+        "description": "Enter the API url to use (ask around to find out what URL to use)",
+        "data": {
+          "conf_url": "API URL"
+        }
+      },
+      "fetch_cities": {
+        "title": "Pollenprognos - Loading...",
         "description": "Retrieves pollen forecasts"
       },
       "select_city": {
@@ -22,10 +29,14 @@
       }
     },
     "abort": {
-      "already_configured": "[%key:common::config_flow::abort::already_configured_account%]"
+      "already_configured": "[%key:common::config_flow::abort::already_configured_account%]",
+      "fetch_data_failed": "Fetching data failed"
     },
     "progress": {
       "fetch_cities": "Retrieves pollen forecasts"
+    },
+    "error": {
+      "bad_host": "Invalid API host URL"
     }
   }
 }
