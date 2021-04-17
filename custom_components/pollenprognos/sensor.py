@@ -44,7 +44,7 @@ class PollenSensor(PollenEntity):
         super().__init__(coordinator, config_entry)
         self._allergen_type = allergen_type
         self._name = name
-        self.entity_id = ENTITY_ID_FORMAT.format(f"{self.config_entry.data[CONF_NAME]}_{self._allergen_type}")
+        self.entity_id = ENTITY_ID_FORMAT.format(f"pollen_{self.config_entry.data[CONF_NAME]}_{self._allergen_type}")
 
     @property
     def _allergen(self):
