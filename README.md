@@ -1,5 +1,12 @@
 # Home Assistant Pollenprognos
 
+[![GitHub Release][releases-shield]][releases]
+[![License][license-shield]](LICENSE)
+
+[![hacs][hacsbadge]][hacs]
+[![Project Maintenance][maintenance-shield]][user_profile]
+[![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
+
 Integration for monitoring pollen. 
 
 #### Important information
@@ -17,3 +24,17 @@ This integration can be configured via the Home Assistant frontend.
 - Follow the instruction on screen to add the sensors.
 
 [Lovelace card to use with this integration.](https://github.com/isabellaalstrom/lovelace-pollenprognos-card)
+
+---
+
+[buymecoffee]: https://www.buymeacoffee.com/JohNan
+[buymecoffeebadge]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge
+[commits-shield]: https://img.shields.io/github/commit-activity/y/JohNan/homeassistant-pollenprognos.svg?style=for-the-badge
+[commits]: https://github.com/JohNan/homeassistant-pollenprognos/commits/main
+[hacs]: https://hacs.xyz
+[hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/JohNan/homeassistant-pollenprognos.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-%40JohNan-blue.svg?style=for-the-badge
+[releases-shield]: https://img.shields.io/github/release/JohNan/homeassistant-pollenprognos.svg?style=for-the-badge
+[releases]: https://github.com/JohNan/homeassistant-pollenprognos/releases
+[user_profile]: https://github.com/JohNan
