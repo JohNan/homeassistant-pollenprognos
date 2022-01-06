@@ -24,7 +24,7 @@ class PollenEntity(CoordinatorEntity):
         }
 
     @property
-    def device_state_attributes(self):
+    def add_state_attributes(self):
         """Return the state attributes."""
         return {
             "update_success": self.coordinator.last_update_success,
