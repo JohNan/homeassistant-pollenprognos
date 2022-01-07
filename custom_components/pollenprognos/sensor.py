@@ -67,7 +67,7 @@ class PollenSensor(PollenEntity):
     def extra_state_attributes(self):
         attributes =  {day['day_name']: day['level'] for day in self._allergen.get('days', []) if day['day'] != 0}
         if hasattr(self, "add_state_attributes"):
-            attributes = {**attributes, **add_state_attributes}
+            attributes = {**attributes, **self.add_state_attributes}
         return attributes
 
     @property
