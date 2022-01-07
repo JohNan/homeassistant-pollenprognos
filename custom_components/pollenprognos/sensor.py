@@ -58,16 +58,20 @@ class PollenSensor(PollenEntity):
         return self._name
 
     @property
-    def state(self):
+    def native_value(self):
         """Return the state of the device."""
         today = next(item for item in self._allergen.get('days', []) if item['day'] == 0)
         return today.get('level', 'n/a')
 
     @property
-    def state_attributes(self):
-        return {day['day_name']: day['level'] for day in self._allergen.get('days', []) if day['day'] != 0}
+    def extra_state_attributes(self):
+        attributes =  {day['day_name']: day['level'] for day in self._allergen.get('days', []) if day['day'] != 0}
+        if hasattr(self, "add_state_attributes"):
+            attributes = {**attributes, **add_state_attributes}
+        return attributes
 
     @property
     def icon(self):
         """ Return the icon for the frontend."""
         return SENSOR_ICONS.get(self._allergen_type, 'default')
+        super().__init__.
