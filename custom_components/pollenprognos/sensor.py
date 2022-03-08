@@ -58,7 +58,7 @@ class PollenSensor(PollenEntity):
         return self._name
 
     @property
-    def native_value(self):
+    def state(self):
         """Return the state of the device."""
         today = next(item for item in self._allergen.get('days', []) if item['day'] == 0)
         return today.get('level', 'n/a')
