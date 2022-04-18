@@ -1,9 +1,7 @@
 {
-  "title": "Pollenprognos",
   "config": {
     "step": {
       "user": {
-        "title": "Pollenprognos",
         "description": "Enter the API url to use (ask around to find out what URL to use)",
         "data": {
           "conf_url": "API URL"

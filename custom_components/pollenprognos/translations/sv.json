@@ -1,9 +1,7 @@
 {
-  "title": "Pollenprognos",
   "config": {
     "step": {
       "user": {
-        "title": "Pollenprognos",
         "description": "Ange URL till API (fråga runt om du inte känner till den)",
         "data": {
           "conf_url": "API URL"
