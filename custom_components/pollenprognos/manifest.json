@@ -3,6 +3,7 @@
   "name": "Pollenprognos",
   "documentation": "https://github.com/JohNan/homeassistant-pollenprognos",
   "issue_tracker": "https://github.com/JohNan/homeassistant-pollenprognos/issues",
+  "after_dependencies": ["http"],
   "dependencies": [],
   "codeowners": ["@JohNan"],
   "config_flow": true,
