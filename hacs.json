@@ -4,4 +4,5 @@
   "hide_default_branch": true,
   "zip_release": true,
   "filename": "pollenprognos.zip",
+  "country": ["SE"]
 }
