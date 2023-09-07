@@ -61,7 +61,8 @@ class PollenSensor(PollenEntity):
     def state(self):
         """Return the state of the device."""
         today = next(item for item in self._allergen.get('days', []) if item['day'] == 0)
-        return today.get('level', 'n/a')
+        state = today.get('level', 'n/a')
+        return 0 if state == -1 else state
 
     @property
     def extra_state_attributes(self):
