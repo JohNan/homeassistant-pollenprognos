@@ -5,6 +5,7 @@
   "issue_tracker": "https://github.com/JohNan/homeassistant-pollenprognos/issues",
   "after_dependencies": ["http"],
   "dependencies": [],
+  "version": "0.0.0",
   "codeowners": ["@JohNan"],
   "config_flow": true,
   "requirements": [],
