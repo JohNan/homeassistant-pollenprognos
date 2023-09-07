@@ -8,5 +8,6 @@
   "config_flow": true,
   "version": "v0.0.0",
   "requirements": [],
-  "iot_class": "cloud_polling"
+  "iot_class": "cloud_polling",
+  "integration_type": "hub"
 }
