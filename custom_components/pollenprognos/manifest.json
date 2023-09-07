@@ -3,10 +3,12 @@
   "name": "Pollenprognos",
   "documentation": "https://github.com/JohNan/homeassistant-pollenprognos",
   "issue_tracker": "https://github.com/JohNan/homeassistant-pollenprognos/issues",
+  "after_dependencies": ["http"],
   "dependencies": [],
+  "version": "0.0.0",
   "codeowners": ["@JohNan"],
   "config_flow": true,
-  "version": "v0.0.0",
   "requirements": [],
-  "iot_class": "cloud_polling"
+  "iot_class": "cloud_polling",
+  "integration_type": "hub"
 }
