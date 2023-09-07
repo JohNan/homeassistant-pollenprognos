@@ -7,7 +7,7 @@
 [![Project Maintenance][maintenance-shield]][user_profile]
 [![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
-Integration for monitoring pollen. 
+Integration for monitoring pollen for *Swedish* locations only.
 
 #### Important information
 To be able to use this integration you need a secret URL to be able to fetch the data. Ask around with your friends in the community.  
