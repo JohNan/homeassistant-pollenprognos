@@ -10,5 +10,5 @@
   "config_flow": true,
   "requirements": [],
   "iot_class": "cloud_polling",
-  "integration_type": "hubbabubba"
+  "integration_type": "hub"
 }
