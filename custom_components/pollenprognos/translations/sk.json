@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Zadajte adresu URL rozhrania API, ktorú chcete použiť (spýtajte sa v okolí, aby ste zistili, akú adresu URL použiť)",
+        "data": {
+          "conf_url": "API URL"
+        }
+      },
+      "fetch_cities": {
+        "title": "Pollenprognos - Načítanie...",
+        "description": "Získava predpovede peľu"
+      },
+      "select_city": {
+        "title": "Pollenprognos - Mesto",
+        "description": "Vyberte mesto, ktoré chcete monitorovať",
+        "data": {
+          "conf_city": "Vyberte mesto"
+        }
+      },
+      "select_pollen": {
+        "title": "Pollenprognos - Peľ",
+        "description": "Vyberte peľ, ktorý chcete monitorovať",
+        "data": {
+          "conf_pollen": "Vyberte peľ"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "[%key:common::config_flow::abort::already_configured_account%]",
+      "fetch_data_failed": "Načítanie údajov zlyhalo"
+    },
+    "progress": {
+      "fetch_cities": "Získava predpovede peľu"
+    },
+    "error": {
+      "bad_host": "Neplatná adresa URL hostiteľa rozhrania API"
+    }
+  }
+}
