@@ -1,12 +1,11 @@
 import logging
 
-import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 
-from .api import PollenApi
+import homeassistant.helpers.config_validation as cv
 from homeassistant import config_entries
+from .api import PollenApi
 from .const import DOMAIN, CONF_ALLERGENS, CONF_NAME, CONF_CITY, CONF_URL
-from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -71,10 +70,10 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             self._init_info[CONF_CITY] = user_input[CONF_CITY]
             self._init_info[CONF_NAME] = next(item for item in self.data.get('cities', []).get('cities', []) if
-                 item["id"] == self._init_info[CONF_CITY])['name']
+                                              item["id"] == self._init_info[CONF_CITY])['name']
             return await self.async_step_select_pollen()
 
-        cities = {city['id']: city['name'] for city in self.data.get('cities', []).get('cities', []) }
+        cities = {city['id']: city['name'] for city in self.data.get('cities', []).get('cities', [])}
         return self.async_show_form(
             step_id="select_city",
             data_schema=vol.Schema(
@@ -106,8 +105,7 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _async_task_fetch_cities(self, url):
         try:
-            session = async_create_clientsession(self.hass)
-            client = PollenApi(session, url)
+            client = PollenApi(self.hass, url)
             self.data = await client.async_get_data()
             _LOGGER.debug("Fetched data: %s", self.data)
         finally:

@@ -3,23 +3,13 @@ Support for getting current pollen levels
 """
 
 import logging
-import json
 
-from collections import namedtuple
-from datetime import timedelta
-from typing import Any
-
-import voluptuous as vol
-import homeassistant.helpers.config_validation as cv
-from homeassistant.helpers.entity import Entity
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
-
-from dateutil import parser
-from datetime import datetime
-from .const import VERSION, DOMAIN, SENSOR_ICONS, CONF_CITY, CONF_ALLERGENS, CONF_NAME
+from .const import DOMAIN, SENSOR_ICONS, CONF_CITY, CONF_ALLERGENS, CONF_NAME
 from .entity import PollenEntity
 
 _LOGGER = logging.getLogger(__name__)
+
 
 async def async_setup_entry(hass, entry, async_add_devices):
     """Setup sensor platform."""
@@ -27,8 +17,10 @@ async def async_setup_entry(hass, entry, async_add_devices):
     if not coordinator.data:
         return False
 
-    city = next(item for item in coordinator.data.get('cities', []).get('cities', []) if item["id"] == entry.data[CONF_CITY])
-    allergens = {pollen['type_code']: pollen['type'] for pollen in city.get('pollen', []) if pollen['type_code'] in entry.data[CONF_ALLERGENS]}
+    city = next(
+        item for item in coordinator.data.get('cities', []).get('cities', []) if item["id"] == entry.data[CONF_CITY])
+    allergens = {pollen['type_code']: pollen['type'] for pollen in city.get('pollen', []) if
+                 pollen['type_code'] in entry.data[CONF_ALLERGENS]}
     async_add_devices([
         PollenSensor(name, allergen, coordinator, entry)
         for (allergen, name) in allergens.items()
