@@ -5,6 +5,9 @@ import socket
 import aiohttp
 import async_timeout
 
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
 TIMEOUT = 10
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -16,8 +19,8 @@ HEADERS = {
 
 
 class PollenApi:
-    def __init__(self, session: aiohttp.ClientSession, url) -> None:
-        self._session = session
+    def __init__(self, hass: HomeAssistant, url) -> None:
+        self._hass = hass
         self._url = url
 
     async def async_get_data(self) -> dict:
@@ -29,19 +32,20 @@ class PollenApi:
     ) -> dict:
         """Get information from the API."""
         try:
+            session = async_get_clientsession(self._hass)
             async with async_timeout.timeout(TIMEOUT):
                 if method == "get":
-                    response = await self._session.get(url, headers=headers)
+                    response = await session.get(url, headers=headers)
                     return await response.json()
 
                 elif method == "put":
-                    await self._session.put(url, headers=headers, json=data)
+                    await session.put(url, headers=headers, json=data)
 
                 elif method == "patch":
-                    await self._session.patch(url, headers=headers, json=data)
+                    await session.patch(url, headers=headers, json=data)
 
                 elif method == "post":
-                    await self._session.post(url, headers=headers, json=data)
+                    await session.post(url, headers=headers, json=data)
 
         except asyncio.TimeoutError as exception:
             _LOGGER.error(

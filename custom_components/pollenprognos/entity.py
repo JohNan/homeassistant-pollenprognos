@@ -28,5 +28,6 @@ class PollenEntity(CoordinatorEntity):
         """Return the state attributes."""
         return {
             "update_success": self.coordinator.last_update_success,
-            "last_updated": self.coordinator.last_updated.strftime("%Y-%m-%d %H:%M:%S") if self.coordinator.last_updated else None
+            "last_updated": self.coordinator.last_updated.strftime(
+                "%Y-%m-%d %H:%M:%S") if self.coordinator.last_updated else None
         }

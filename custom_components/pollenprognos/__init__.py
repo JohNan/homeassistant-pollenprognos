@@ -3,13 +3,12 @@ import asyncio
 import logging
 from datetime import timedelta, datetime
 
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers.update_coordinator import UpdateFailed, DataUpdateCoordinator
 from .api import PollenApi
 from .const import DOMAIN, PLATFORMS, CONF_URL
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant, Config
-from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.update_coordinator import UpdateFailed, DataUpdateCoordinator
 
 SCAN_INTERVAL = timedelta(hours=4)
 
@@ -21,8 +20,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     if hass.data.get(DOMAIN) is None:
         hass.data.setdefault(DOMAIN, {})
 
-    session = async_get_clientsession(hass)
-    client = PollenApi(session, entry.data[CONF_URL])
+    client = PollenApi(hass, entry.data[CONF_URL])
 
     coordinator = PollenprognosDataUpdateCoordinator(hass, client=client)
     await coordinator.async_refresh()
@@ -47,7 +45,7 @@ class PollenprognosDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching data from the API."""
 
     def __init__(
-        self, hass: HomeAssistant, client: PollenApi
+            self, hass: HomeAssistant, client: PollenApi
     ) -> None:
         """Initialize."""
         self.api = client
