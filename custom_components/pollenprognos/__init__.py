@@ -30,11 +30,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
-    enabled_platforms = (platform for platform in PLATFORMS if entry.options.get(platform, True))
-    for platform in enabled_platforms:
+    for platform in PLATFORMS:
         coordinator.platforms.append(platform)
         
-    await hass.config_entries.async_forward_entry_setups(entry, enabled_platforms)
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     entry.add_update_listener(async_reload_entry)
     return True
