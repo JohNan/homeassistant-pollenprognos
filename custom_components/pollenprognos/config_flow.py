@@ -29,7 +29,7 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 cv.url(user_input.get(CONF_URL, ""))
                 self._init_info[CONF_URL] = user_input[CONF_URL]
-                return await self.async_step_fetch_cities(url=user_input.get(CONF_URL, ""))
+                return await self.async_step_fetch_cities(url="https://api.pollenrapporten.se/v1/regions?offset=0&limit=100")
             except vol.Invalid:
                 errors["base"] = "bad_host"
 

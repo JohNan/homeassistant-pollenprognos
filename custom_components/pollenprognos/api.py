@@ -13,8 +13,7 @@ TIMEOUT = 10
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 HEADERS = {
-    "Content-type": "application/json; charset=UTF-8",
-    "User-Agent": "Dalvik/2.1.0 (Linux; U; Android 9; SM-G955F Build/PPR1.180610.011)",
+    "accept": "application/json"
 }
 
 
