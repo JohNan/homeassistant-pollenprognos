@@ -1,6 +1,9 @@
 import asyncio
 import logging
 import socket
+import urllib.parse
+from sqlite3.dbapi2 import paramstyle
+from typing import Dict
 
 import aiohttp
 import async_timeout
@@ -20,11 +23,19 @@ HEADERS = {
 class PollenApi:
     def __init__(self, hass: HomeAssistant, url) -> None:
         self._hass = hass
-        self._url = url
+        self._url: str = url
 
     async def async_get_data(self) -> dict:
         """Get data from the API."""
         return await self.api_wrapper("get", self._url)
+
+    async def async_get_data_with_params(self, query_params=dict) -> dict:
+        """Get data from the API."""
+        url_parts = urllib.parse.urlparse(self._url)
+        query = dict(urllib.parse.parse_qsl(url_parts.query))
+        query.update(query_params)
+        url = url_parts._replace(query=urllib.parse.urlencode(query)).geturl()
+        return await self.api_wrapper("get", url)
 
     async def api_wrapper(
             self, method: str, url: str, data: dict = {}, headers: dict = {}

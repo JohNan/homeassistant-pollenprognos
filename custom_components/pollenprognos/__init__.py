@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed, DataUpdateCoordinator
 from .api import PollenApi
-from .const import DOMAIN, PLATFORMS, CONF_URL
+from .const import DOMAIN, PLATFORMS, CONF_URL, CONF_CITY
 
 SCAN_INTERVAL = timedelta(hours=4)
 
@@ -20,7 +20,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     if hass.data.get(DOMAIN) is None:
         hass.data.setdefault(DOMAIN, {})
 
-    client = PollenApi(hass, entry.data[CONF_URL])
+    client = PollenApi(hass, f"https://api.pollenrapporten.se/v1/forecasts?region_id={entry.data[CONF_CITY]}&offset=0&limit=100")
 
     coordinator = PollenprognosDataUpdateCoordinator(hass, client=client)
     await coordinator.async_refresh()
@@ -32,7 +32,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     for platform in PLATFORMS:
         coordinator.platforms.append(platform)
-        
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     entry.add_update_listener(async_reload_entry)
@@ -55,7 +55,7 @@ class PollenprognosDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Update data via library."""
         try:
-            data = await self.api.async_get_data()
+            data = await self.api.async_get_data_with_params(query_params={'start_date': datetime.now().strftime('%Y-%m-%d')})
             self.last_updated = datetime.now()
             return data
         except Exception as exception:

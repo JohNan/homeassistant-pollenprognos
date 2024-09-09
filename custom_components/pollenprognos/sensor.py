@@ -17,13 +17,11 @@ async def async_setup_entry(hass, entry, async_add_devices):
     if not coordinator.data:
         return False
 
-    city = next(
-        item for item in coordinator.data.get('cities', []).get('cities', []) if item["id"] == entry.data[CONF_CITY])
-    allergens = {pollen['type_code']: pollen['type'] for pollen in city.get('pollen', []) if
-                 pollen['type_code'] in entry.data[CONF_ALLERGENS]}
+    allergens = {pollen['pollenId'] for pollen in coordinator.data.get('items', [])[0].get('levelSeries', {}) if
+                 pollen['pollenId'] in entry.data[CONF_ALLERGENS].keys()}
     async_add_devices([
         PollenSensor(name, allergen, coordinator, entry)
-        for (allergen, name) in allergens.items()
+        for (allergen, name) in allergens
     ])
 
     return True
