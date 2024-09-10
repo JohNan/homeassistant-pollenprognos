@@ -9,6 +9,7 @@ PLATFORMS = [SENSOR]
 
 CONF_CITY = 'conf_city'
 CONF_ALLERGENS = 'conf_allergens'
+CONF_ALLERGENS_MAP = 'conf_allergens_map'
 CONF_NAME = 'conf_name'
 CONF_URL = 'conf_url'
 

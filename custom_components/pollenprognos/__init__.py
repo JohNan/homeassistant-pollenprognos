@@ -55,7 +55,10 @@ class PollenprognosDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Update data via library."""
         try:
-            data = await self.api.async_get_data_with_params(query_params={'start_date': datetime.now().strftime('%Y-%m-%d')})
+            data = await self.api.async_get_data_with_params(
+                # query_params={'start_date': datetime.now().strftime('%Y-%m-%d')}
+                query_params={'current': 'true'}
+            )
             self.last_updated = datetime.now()
             return data
         except Exception as exception:

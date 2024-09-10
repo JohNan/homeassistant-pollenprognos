@@ -1,4 +1,5 @@
 import asyncio
+import enum
 import logging
 import socket
 import urllib.parse
@@ -19,15 +20,60 @@ HEADERS = {
     "accept": "application/json"
 }
 
+class PollenType:
+    id: str
+    name: str
+
+    def __init__(self, id: str, name: str):
+        self.id = id
+        self.name = name
+
+class City:
+    id: str
+    name: str
+
+    def __init__(self, id: str, name: str):
+        self.id = id
+        self.name = name
 
 class PollenApi:
+    pollen_types: list[PollenType] = None
+    cities: list[City] = None
+
     def __init__(self, hass: HomeAssistant, url) -> None:
         self._hass = hass
         self._url: str = url
 
+    async def async_get_pollen_types(self) -> list[PollenType]:
+        if self.pollen_types is None:
+            response = await self.request(
+                "get",
+                "https://api.pollenrapporten.se/v1/pollen-types?offset=0&limit=100"
+            )
+            self.pollen_types = [
+                PollenType(pollen['id'], pollen['name'])
+                for pollen in response.get('items', [])
+            ]
+
+        return self.pollen_types
+
+    async def async_get_cities(self) -> list[City]:
+        if self.cities is None:
+            response = await self.request(
+                "get",
+                "https://api.pollenrapporten.se/v1/regions?offset=0&limit=100"
+            )
+            self.cities = [
+                City(pollen['id'], pollen['name'])
+                for pollen in response.get('items', [])
+            ]
+
+        return self.cities
+
+
     async def async_get_data(self) -> dict:
         """Get data from the API."""
-        return await self.api_wrapper("get", self._url)
+        return await self.request("get", self._url)
 
     async def async_get_data_with_params(self, query_params=dict) -> dict:
         """Get data from the API."""
@@ -35,9 +81,9 @@ class PollenApi:
         query = dict(urllib.parse.parse_qsl(url_parts.query))
         query.update(query_params)
         url = url_parts._replace(query=urllib.parse.urlencode(query)).geturl()
-        return await self.api_wrapper("get", url)
+        return await self.request("get", url)
 
-    async def api_wrapper(
+    async def request(
             self, method: str, url: str, data: dict = {}, headers: dict = {}
     ) -> dict:
         """Get information from the API."""

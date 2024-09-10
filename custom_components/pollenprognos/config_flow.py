@@ -1,12 +1,13 @@
 import asyncio
 import logging
+import operator
 
 import voluptuous as vol
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant import config_entries
 from .api import PollenApi
-from .const import DOMAIN, CONF_ALLERGENS, CONF_NAME, CONF_CITY, CONF_URL
+from .const import DOMAIN, CONF_ALLERGENS, CONF_NAME, CONF_CITY, CONF_URL, CONF_ALLERGENS_MAP
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -118,6 +119,8 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             )
 
         pollen = {pollen['id']: pollen['name'] for pollen in self.pollen_types.get('items', [])}
+        self._init_info[CONF_ALLERGENS_MAP] = pollen
+
         return self.async_show_form(
             step_id="select_pollen",
             data_schema=vol.Schema(
@@ -138,6 +141,11 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             )
 
     async def _async_task_fetch_pollen_types(self, url):
-        client = PollenApi(self.hass, url)
-        self.pollen_types = await client.async_get_data()
-        _LOGGER.debug("Fetched data: %s", self.pollen_types)
+        try:
+            client = PollenApi(self.hass, url)
+            self.pollen_types = await client.async_get_data()
+            _LOGGER.debug("Fetched data: %s", self.pollen_types)
+        finally:
+            self.hass.async_create_task(
+                self.hass.config_entries.flow.async_configure(flow_id=self.flow_id)
+            )
