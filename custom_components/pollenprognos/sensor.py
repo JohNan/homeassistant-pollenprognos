@@ -44,9 +44,11 @@ class PollenSensor(PollenEntity):
 
     @property
     def _allergen(self):
-        city = next(item for item in self.coordinator.data.get('cities', []).get('cities', []) if
-                    item["id"] == self.config_entry.data[CONF_CITY])
-        return next(item for item in city.get('pollen', []) if item['type_code'] == self._allergen_id)
+        cities = self.coordinator.data.get('items', [])
+        if len(cities) == 0:
+            return None
+
+        return next(item for item in cities[0].get('levelSeries', []) if item['pollenId'] == self._allergen_id)
 
     @property
     def name(self):

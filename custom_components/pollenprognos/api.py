@@ -28,13 +28,27 @@ class PollenType:
         self.id = id
         self.name = name
 
+class Pollen:
+    pollen_type: PollenType
+    level: str
+    time: str
+
+
 class City:
-    id: str
+    region_id: str
     name: str
 
-    def __init__(self, id: str, name: str):
-        self.id = id
+    def __init__(self, region_id: str, name: str):
+        self.region_id = region_id
         self.name = name
+
+class Forecast:
+    city: City
+    pollen_levels: list[Pollen]
+
+    def __init__(self, city: City, pollen_levels: list[Pollen]):
+        self.city = city
+        self.pollen_levels = pollen_levels
 
 class PollenApi:
     pollen_types: list[PollenType] = None
@@ -70,6 +84,21 @@ class PollenApi:
 
         return self.cities
 
+    async def async_get_forecast(self, region_id: str) -> list[City]:
+        response = await self.request(
+            "get",
+            f"https://api.pollenrapporten.se/v1/forecasts?region_id={region_id}&offset=0&limit=100"
+        )
+
+        return self.cities
+
+    async def async_request_(self, query_params=dict) -> dict:
+        """Get data from the API."""
+        url_parts = urllib.parse.urlparse(self._url)
+        query = dict(urllib.parse.parse_qsl(url_parts.query))
+        query.update(query_params)
+        url = url_parts._replace(query=urllib.parse.urlencode(query)).geturl()
+        return await self.request("get", url)
 
     async def async_get_data(self) -> dict:
         """Get data from the API."""
