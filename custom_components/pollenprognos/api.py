@@ -62,7 +62,7 @@ class PollenApi:
         if self.pollen_types is None:
             response = await self.request(
                 "get",
-                "https://api.pollenrapporten.se/v1/pollen-types?offset=0&limit=100"
+                "https://api.pollenrapporten.se/v1/pollen-types"
             )
             self.pollen_types = [
                 PollenType(pollen['id'], pollen['name'])
@@ -75,7 +75,7 @@ class PollenApi:
         if self.cities is None:
             response = await self.request(
                 "get",
-                "https://api.pollenrapporten.se/v1/regions?offset=0&limit=100"
+                "https://api.pollenrapporten.se/v1/regions"
             )
             self.cities = [
                 City(pollen['id'], pollen['name'])
@@ -87,7 +87,7 @@ class PollenApi:
     async def async_get_forecast(self, region_id: str) -> list[City]:
         response = await self.request(
             "get",
-            f"https://api.pollenrapporten.se/v1/forecasts?region_id={region_id}&offset=0&limit=100"
+            f"https://api.pollenrapporten.se/v1/forecasts?region_id={region_id}&current=true"
         )
 
         return self.cities
