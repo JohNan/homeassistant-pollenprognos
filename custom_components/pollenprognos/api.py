@@ -60,6 +60,7 @@ class PollenApi:
     pollen_types: list[PollenType] = None
     cities: list[City] = None
     forecast: dict[PollenType, dict[str, int]] = None
+    pollen_level_defintions: list[str] = None
 
     def __init__(self, hass: HomeAssistant) -> None:
         self._hass = hass
@@ -90,8 +91,6 @@ class PollenApi:
 
     async def async_get_forecast(self, region_id: str = ''):
         if self.forecast is None:
-            if self.pollen_types is None:
-                await self.async_get_pollen_types()
             if self.cities is None:
                 await self.async_get_cities()
             if region_id == '':
@@ -103,9 +102,18 @@ class PollenApi:
             forecast = {pollen: {} for pollen in self.pollen_types}
             for item in response.get('items',[])[0].get('levelSeries',[]):
                 pollenId = item['pollenId']
-                forecast[pollenId][item['time']] = item['level']
+                forecast[pollenId][item['time']] = self.pollen_level_defintions[item['level']]
             self.forecast = forecast
         return self.forecast
+    
+    async def async_get_pollen_level_defintions(self):
+        if self.pollen_level_defintions is None:
+            response = await self.request(
+                "get",
+                BASE_URL + Endpoints.POLLEN_LEVEL_DEFINITIONS.value
+            )
+            self.pollen_level_defintions = [item['name'] for item in response.get('items',[])]
+        return self.pollen_level_defintions
 
     async def request(
             self, method: str, url: str, data: dict = {}, headers: dict = {}

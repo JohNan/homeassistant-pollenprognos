@@ -4,7 +4,7 @@ Support for getting current pollen levels
 
 import logging
 
-from homeassistant.components.sensor import ENTITY_ID_FORMAT
+from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorDeviceClass
 from .const import DOMAIN, SENSOR_ICONS, CONF_CITY, CONF_ALLERGENS, CONF_NAME, CONF_ALLERGENS_MAP
 from .entity import PollenEntity
 from .api import PollenType
@@ -37,6 +37,8 @@ class PollenSensor(PollenEntity):
         super().__init__(coordinator, config_entry)
         self._pollen_type = pollen_type
         self.entity_id = ENTITY_ID_FORMAT.format(f"pollen_{self.config_entry.data[CONF_NAME]}_{self._pollen_type.id}")
+        self.device_class = SensorDeviceClass.ENUM
+        self.options = coordinator.pollen_level_defintions + ["n/a"]
 
     @property
     def _allergen(self):
@@ -50,7 +52,8 @@ class PollenSensor(PollenEntity):
     @property
     def state(self):
         """Return the state of the device."""
-        return next(self._allergen, (-1,))[-1]
+        return next(self._allergen, ['n/a'])[-1]
+
 
     @property
     def extra_state_attributes(self):

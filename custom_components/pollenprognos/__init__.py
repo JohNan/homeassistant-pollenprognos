@@ -23,11 +23,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     client = PollenApi(hass)
 
     coordinator = PollenprognosDataUpdateCoordinator(hass, client=client)
-    await coordinator.async_refresh()
+    await coordinator.async_config_entry_first_refresh()
 
     if not coordinator.last_update_success:
         raise ConfigEntryNotReady
-
+    
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
     for platform in PLATFORMS:
@@ -51,6 +51,10 @@ class PollenprognosDataUpdateCoordinator(DataUpdateCoordinator):
         self.last_updated = None
 
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
+
+    async def _async_setup(self):
+        self.pollen_level_defintions =  await self.api.async_get_pollen_level_defintions()
+        await self.api.async_get_pollen_types()
 
     async def _async_update_data(self):
         """Update data via library."""
