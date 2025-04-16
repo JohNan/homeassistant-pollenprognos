@@ -28,11 +28,26 @@ class PollenType:
         self.id = id
         self.name = name
 
+    def __hash__(self):
+        return hash((self.id))
+    
+    def __eq__(self, other):
+        if isinstance(other, PollenType):
+            return self.id == other.id
+        elif isinstance(other, str):
+            return self.id == other
+        return False
+
+    def __repr__(self):
+        return f'{self.__dict__}'
+
 class Pollen:
     pollen_type: PollenType
     level: str
     time: str
 
+    def __repr__(self):
+        return f'{self.__dict__}'
 
 class City:
     region_id: str
@@ -41,6 +56,9 @@ class City:
     def __init__(self, region_id: str, name: str):
         self.region_id = region_id
         self.name = name
+    
+    def __repr__(self):
+        return f'{self.__dict__}'
 
 class Forecast:
     city: City
@@ -53,8 +71,9 @@ class Forecast:
 class PollenApi:
     pollen_types: list[PollenType] = None
     cities: list[City] = None
+    forecast: dict[PollenType, dict[str, int]] = None
 
-    def __init__(self, hass: HomeAssistant, url) -> None:
+    def __init__(self, hass: HomeAssistant, url: str = '') -> None:
         self._hass = hass
         self._url: str = url
 
@@ -68,7 +87,6 @@ class PollenApi:
                 PollenType(pollen['id'], pollen['name'])
                 for pollen in response.get('items', [])
             ]
-
         return self.pollen_types
 
     async def async_get_cities(self) -> list[City]:
@@ -78,19 +96,30 @@ class PollenApi:
                 "https://api.pollenrapporten.se/v1/regions"
             )
             self.cities = [
-                City(pollen['id'], pollen['name'])
-                for pollen in response.get('items', [])
+                City(city['id'], city['name'])
+                for city in response.get('items', [])
             ]
-
         return self.cities
 
-    async def async_get_forecast(self, region_id: str) -> list[City]:
-        response = await self.request(
-            "get",
-            f"https://api.pollenrapporten.se/v1/forecasts?region_id={region_id}&current=true"
-        )
-
-        return self.cities
+    async def async_get_forecast(self, region_id: str = ''):
+        if self.forecast is None:
+            if self.pollen_types is None:
+                await self.async_get_pollen_types()
+            if self.cities is None:
+                await self.async_get_cities()
+            if region_id == '':
+                region_id = self.cities[0].region_id
+            response = await self.request(
+                "get",
+                f"https://api.pollenrapporten.se/v1/forecasts?region_id={region_id}&current=true"
+            )
+            forecast = {pollen: {} for pollen in self.pollen_types}
+            for item in response.get('items',[])[0].get('levelSeries',[]):
+                pollenId = item['pollenId']
+                forecast[pollenId][item['time']] = item['level']
+            self.forecast = forecast
+        return self.forecast
+            
 
     async def async_request_(self, query_params=dict) -> dict:
         """Get data from the API."""

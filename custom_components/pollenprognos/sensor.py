@@ -7,6 +7,7 @@ import logging
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
 from .const import DOMAIN, SENSOR_ICONS, CONF_CITY, CONF_ALLERGENS, CONF_NAME, CONF_ALLERGENS_MAP
 from .entity import PollenEntity
+from .api import PollenType
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,16 +19,14 @@ async def async_setup_entry(hass, entry, async_add_devices):
         return False
 
     pollen_map = entry.data[CONF_ALLERGENS_MAP]
-    pollens = coordinator.data.get('items', [])
+    pollens = coordinator.data
+    print(f'pollens: {pollens}')
 
     if len(pollens) == 0:
         return False
-
-    allergens = {pollen['pollenId'] : pollen_map[pollen['pollenId']]  for pollen in pollens[0].get('levelSeries', {}) if
-                 pollen['pollenId'] in entry.data[CONF_ALLERGENS]}
     async_add_devices([
-        PollenSensor(name, allergen, coordinator, entry)
-        for (allergen, name) in allergens.items()
+        PollenSensor(pollen, coordinator, entry)
+        for pollen in pollens if pollen.id in entry.data[CONF_ALLERGENS]
     ])
 
     return True
@@ -36,35 +35,28 @@ async def async_setup_entry(hass, entry, async_add_devices):
 class PollenSensor(PollenEntity):
     """Representation of a Pollen sensor."""
 
-    def __init__(self, name, allergen_id, coordinator, config_entry):
+    def __init__(self, pollen_type: PollenType, coordinator, config_entry):
         super().__init__(coordinator, config_entry)
-        self._allergen_id = allergen_id
-        self._name = name
-        self.entity_id = ENTITY_ID_FORMAT.format(f"pollen_{self.config_entry.data[CONF_NAME]}_{self._allergen_id}")
+        self._pollen_type = pollen_type
+        self.entity_id = ENTITY_ID_FORMAT.format(f"pollen_{self.config_entry.data[CONF_NAME]}_{self._pollen_type.id}")
 
     @property
     def _allergen(self):
-        cities = self.coordinator.data.get('items', [])
-        if len(cities) == 0:
-            return None
-
-        return next(item for item in cities[0].get('levelSeries', []) if item['pollenId'] == self._allergen_id)
+        return iter(self.coordinator.data[self._pollen_type].items())
 
     @property
     def name(self):
         """Return the name of the sensor."""
-        return self._name
+        return self._pollen_type.name
 
     @property
     def state(self):
         """Return the state of the device."""
-        today = next(item for item in self._allergen.get('days', []) if item['day'] == 0)
-        state = today.get('level', 'n/a')
-        return 0 if state == -1 else state
+        return next(self._allergen, [-1])[-1]
 
     @property
     def extra_state_attributes(self):
-        attributes = {day['date_realtive']: day['level'] for day in self._allergen.get('days', []) if day['day'] != 0}
+        attributes = {'forecast': dict(self._allergen)}
         if hasattr(self, "add_state_attributes"):
             attributes = {**attributes, **self.add_state_attributes}
         return attributes
@@ -72,4 +64,4 @@ class PollenSensor(PollenEntity):
     @property
     def icon(self):
         """ Return the icon for the frontend."""
-        return SENSOR_ICONS.get(self._allergen_id, 'default')
+        return SENSOR_ICONS.get(self._pollen_type.id, 'default')
