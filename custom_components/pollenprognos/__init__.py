@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import UpdateFailed, DataUpdateCoordinator
 from .api import PollenApi
-from .const import DOMAIN, PLATFORMS, CONF_URL
+from .const import DOMAIN, PLATFORMS, CONF_URL, CONF_CITY
 
 SCAN_INTERVAL = timedelta(hours=4)
 
@@ -20,19 +20,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     if hass.data.get(DOMAIN) is None:
         hass.data.setdefault(DOMAIN, {})
 
-    client = PollenApi(hass, entry.data[CONF_URL])
+    client = PollenApi(hass)
 
     coordinator = PollenprognosDataUpdateCoordinator(hass, client=client)
-    await coordinator.async_refresh()
+    await coordinator.async_config_entry_first_refresh()
 
     if not coordinator.last_update_success:
         raise ConfigEntryNotReady
-
+    
     hass.data[DOMAIN][entry.entry_id] = coordinator
 
     for platform in PLATFORMS:
         coordinator.platforms.append(platform)
-        
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     entry.add_update_listener(async_reload_entry)
@@ -52,10 +52,14 @@ class PollenprognosDataUpdateCoordinator(DataUpdateCoordinator):
 
         super().__init__(hass, _LOGGER, name=DOMAIN, update_interval=SCAN_INTERVAL)
 
+    async def _async_setup(self):
+        self.pollen_level_defintions =  await self.api.async_get_pollen_level_defintions()
+        await self.api.async_get_pollen_types()
+
     async def _async_update_data(self):
         """Update data via library."""
         try:
-            data = await self.api.async_get_data()
+            data = await self.api.async_get_forecast()
             self.last_updated = datetime.now()
             return data
         except Exception as exception:

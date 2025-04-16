@@ -1,6 +1,12 @@
 import asyncio
+import enum
 import logging
 import socket
+import urllib.parse
+from sqlite3.dbapi2 import paramstyle
+from typing import Dict
+from dataclasses import dataclass
+from .const import BASE_URL, Endpoints
 
 import aiohttp
 import async_timeout
@@ -13,21 +19,103 @@ TIMEOUT = 10
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
 HEADERS = {
-    "Content-type": "application/json; charset=UTF-8",
-    "User-Agent": "Dalvik/2.1.0 (Linux; U; Android 9; SM-G955F Build/PPR1.180610.011)",
+    "accept": "application/json"
 }
 
+@dataclass
+class PollenType:
+    id: str
+    name: str
+
+    def __hash__(self):
+        return hash((self.id))
+    
+    def __eq__(self, other):
+        if isinstance(other, PollenType):
+            return self.id == other.id
+        elif isinstance(other, str):
+            return self.id == other
+        return False
+    
+@dataclass
+class Pollen:
+    pollen_type: PollenType
+    level: str
+    time: str
+
+@dataclass
+class City:
+    region_id: str
+    name: str
+
+class Forecast:
+    city: City
+    pollen_levels: list[Pollen]
+
+    def __init__(self, city: City, pollen_levels: list[Pollen]):
+        self.city = city
+        self.pollen_levels = pollen_levels
 
 class PollenApi:
-    def __init__(self, hass: HomeAssistant, url) -> None:
+    pollen_types: list[PollenType] = None
+    cities: list[City] = None
+    forecast: dict[PollenType, dict[str, int]] = None
+    pollen_level_defintions: list[str] = None
+
+    def __init__(self, hass: HomeAssistant) -> None:
         self._hass = hass
-        self._url = url
 
-    async def async_get_data(self) -> dict:
-        """Get data from the API."""
-        return await self.api_wrapper("get", self._url)
+    async def async_get_pollen_types(self) -> list[PollenType]:
+        if self.pollen_types is None:
+            response = await self.request(
+                "get",
+                BASE_URL + Endpoints.POLLEN_TYPES.value
+            )
+            self.pollen_types = [
+                PollenType(pollen['id'], pollen['name'])
+                for pollen in response.get('items', [])
+            ]
+        return self.pollen_types
 
-    async def api_wrapper(
+    async def async_get_cities(self) -> list[City]:
+        if self.cities is None:
+            response = await self.request(
+                "get",
+                BASE_URL + Endpoints.REGIONS.value
+            )
+            self.cities = [
+                City(city['id'], city['name'])
+                for city in response.get('items', [])
+            ]
+        return self.cities
+
+    async def async_get_forecast(self, region_id: str = ''):
+        if self.forecast is None:
+            if self.cities is None:
+                await self.async_get_cities()
+            if region_id == '':
+                region_id = self.cities[0].region_id
+            response = await self.request(
+                "get",
+                f"{BASE_URL}{Endpoints.FORECASTS.value}?region_id={region_id}&current=true"
+            )
+            forecast = {pollen: {} for pollen in self.pollen_types}
+            for item in response.get('items',[])[0].get('levelSeries',[]):
+                pollenId = item['pollenId']
+                forecast[pollenId][item['time']] = self.pollen_level_defintions[item['level']]
+            self.forecast = forecast
+        return self.forecast
+    
+    async def async_get_pollen_level_defintions(self):
+        if self.pollen_level_defintions is None:
+            response = await self.request(
+                "get",
+                BASE_URL + Endpoints.POLLEN_LEVEL_DEFINITIONS.value
+            )
+            self.pollen_level_defintions = [item['name'] for item in response.get('items',[])]
+        return self.pollen_level_defintions
+
+    async def request(
             self, method: str, url: str, data: dict = {}, headers: dict = {}
     ) -> dict:
         """Get information from the API."""
