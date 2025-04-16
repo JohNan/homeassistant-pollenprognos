@@ -7,7 +7,7 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 from homeassistant import config_entries
 from .api import PollenApi
-from .const import DOMAIN, CONF_ALLERGENS, CONF_NAME, CONF_CITY, CONF_URL, CONF_ALLERGENS_MAP
+from .const import DOMAIN, CONF_ALLERGENS, CONF_NAME, CONF_CITY, CONF_URL
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -116,7 +116,6 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 title=self._init_info[CONF_NAME], data=self._init_info
             )
         pollen = {pollen.id: pollen.name for pollen in self.pollen_types}
-        self._init_info[CONF_ALLERGENS_MAP] = pollen
 
         return self.async_show_form(
             step_id="select_pollen",

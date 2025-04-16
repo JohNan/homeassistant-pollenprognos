@@ -18,9 +18,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
     if not coordinator.data:
         return False
 
-    pollen_map = entry.data[CONF_ALLERGENS_MAP]
     pollens = coordinator.data
-    print(f'pollens: {pollens}')
 
     if len(pollens) == 0:
         return False
@@ -52,7 +50,7 @@ class PollenSensor(PollenEntity):
     @property
     def state(self):
         """Return the state of the device."""
-        return next(self._allergen, [-1])[-1]
+        return next(self._allergen, (-1,))[-1]
 
     @property
     def extra_state_attributes(self):

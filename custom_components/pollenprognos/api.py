@@ -5,6 +5,8 @@ import socket
 import urllib.parse
 from sqlite3.dbapi2 import paramstyle
 from typing import Dict
+from dataclasses import dataclass
+from .const import BASE_URL, Endpoints
 
 import aiohttp
 import async_timeout
@@ -20,13 +22,10 @@ HEADERS = {
     "accept": "application/json"
 }
 
+@dataclass
 class PollenType:
     id: str
     name: str
-
-    def __init__(self, id: str, name: str):
-        self.id = id
-        self.name = name
 
     def __hash__(self):
         return hash((self.id))
@@ -37,28 +36,17 @@ class PollenType:
         elif isinstance(other, str):
             return self.id == other
         return False
-
-    def __repr__(self):
-        return f'{self.__dict__}'
-
+    
+@dataclass
 class Pollen:
     pollen_type: PollenType
     level: str
     time: str
 
-    def __repr__(self):
-        return f'{self.__dict__}'
-
+@dataclass
 class City:
     region_id: str
     name: str
-
-    def __init__(self, region_id: str, name: str):
-        self.region_id = region_id
-        self.name = name
-    
-    def __repr__(self):
-        return f'{self.__dict__}'
 
 class Forecast:
     city: City
@@ -73,15 +61,14 @@ class PollenApi:
     cities: list[City] = None
     forecast: dict[PollenType, dict[str, int]] = None
 
-    def __init__(self, hass: HomeAssistant, url: str = '') -> None:
+    def __init__(self, hass: HomeAssistant) -> None:
         self._hass = hass
-        self._url: str = url
 
     async def async_get_pollen_types(self) -> list[PollenType]:
         if self.pollen_types is None:
             response = await self.request(
                 "get",
-                "https://api.pollenrapporten.se/v1/pollen-types"
+                BASE_URL + Endpoints.POLLEN_TYPES.value
             )
             self.pollen_types = [
                 PollenType(pollen['id'], pollen['name'])
@@ -93,7 +80,7 @@ class PollenApi:
         if self.cities is None:
             response = await self.request(
                 "get",
-                "https://api.pollenrapporten.se/v1/regions"
+                BASE_URL + Endpoints.REGIONS.value
             )
             self.cities = [
                 City(city['id'], city['name'])
@@ -111,7 +98,7 @@ class PollenApi:
                 region_id = self.cities[0].region_id
             response = await self.request(
                 "get",
-                f"https://api.pollenrapporten.se/v1/forecasts?region_id={region_id}&current=true"
+                f"{BASE_URL}{Endpoints.FORECASTS.value}?region_id={region_id}&current=true"
             )
             forecast = {pollen: {} for pollen in self.pollen_types}
             for item in response.get('items',[])[0].get('levelSeries',[]):
@@ -119,27 +106,6 @@ class PollenApi:
                 forecast[pollenId][item['time']] = item['level']
             self.forecast = forecast
         return self.forecast
-            
-
-    async def async_request_(self, query_params=dict) -> dict:
-        """Get data from the API."""
-        url_parts = urllib.parse.urlparse(self._url)
-        query = dict(urllib.parse.parse_qsl(url_parts.query))
-        query.update(query_params)
-        url = url_parts._replace(query=urllib.parse.urlencode(query)).geturl()
-        return await self.request("get", url)
-
-    async def async_get_data(self) -> dict:
-        """Get data from the API."""
-        return await self.request("get", self._url)
-
-    async def async_get_data_with_params(self, query_params=dict) -> dict:
-        """Get data from the API."""
-        url_parts = urllib.parse.urlparse(self._url)
-        query = dict(urllib.parse.parse_qsl(url_parts.query))
-        query.update(query_params)
-        url = url_parts._replace(query=urllib.parse.urlencode(query)).geturl()
-        return await self.request("get", url)
 
     async def request(
             self, method: str, url: str, data: dict = {}, headers: dict = {}

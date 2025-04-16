@@ -1,3 +1,4 @@
+from enum import Enum
 """Pollenprognos Custom Update Version."""
 NAME = "Pollenprognos"
 VERSION = '1.0.0'
@@ -38,3 +39,11 @@ SENSOR_ICONS = {
     'salg_vide': 'mdi:leaf',
     'default': 'mdi:leaf'
 }
+
+BASE_URL = 'https://api.pollenrapporten.se'
+
+class Endpoints(Enum):
+    POLLEN_TYPES = '/v1/pollen-types'
+    REGIONS = '/v1/regions'
+    FORECASTS = '/v1/forecasts'
+    POLLEN_LEVEL_DEFINITIONS = '/v1/pollen-level-definitions'
