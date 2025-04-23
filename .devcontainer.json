@@ -1,7 +1,7 @@
 {
   "name": "JohNan/homeassistant-pollenprognos",
-  "image": "mcr.microsoft.com/devcontainers/python:1-3.12",
-  "postCreateCommand": "scripts/setup",
+  "image": "mcr.microsoft.com/devcontainers/python:3.13",
+  "postStartCommand": "scripts/setup",
   "forwardPorts": [
     8123
   ],
@@ -12,6 +12,17 @@
     }
   },
   "customizations": {
+    "jetbrains": {
+      "backend" : "PyCharm",
+      "settings": {
+        "com.intellij:app:HttpConfigurable.use_proxy_pac": true,
+        "com.intellij:app:BaseRefactoringSettings.safe_delete_search_in_comments": false,
+        "com.intellij:app:BaseRefactoringSettings.safe_delete_search_in_non_java": false,
+        "com.intellij:app:BaseRefactoringSettings.rename_search_in_comments_for_file": false,
+        "com.intellij:app:BaseRefactoringSettings.rename_search_for_references_for_file": false,
+        "com.intellij:app:BaseRefactoringSettings.move_search_for_references_for_file": false
+      }
+    },
     "vscode": {
       "extensions": [
         "charliermarsh.ruff",
@@ -37,5 +48,13 @@
     }
   },
   "remoteUser": "vscode",
-  "features": {}
+  "features": {
+    "ghcr.io/devcontainers-extra/features/apt-packages:1": {
+      "packages": [
+        "ffmpeg",
+        "libturbojpeg0",
+        "libpcap-dev"
+      ]
+    }
+  }
 }

@@ -1,3 +1,5 @@
 numpy
 aiohttp
-homeassistant==2024.8.0
+colorlog==6.9.0
+homeassistant==2025.2.4
+pip>=21.3.1
