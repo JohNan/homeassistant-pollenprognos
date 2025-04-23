@@ -22,7 +22,8 @@
         "title": "Pollenprognos - Pollen",
         "description": "Choose which pollen you want to monitor",
         "data": {
-          "conf_pollen": "Select pollen"
+          "conf_pollen": "Select pollen",
+          "conf_numeric_state": "Use numeric state"
         }
       }
     },

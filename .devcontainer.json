@@ -1,7 +1,7 @@
 {
   "name": "JohNan/homeassistant-pollenprognos",
   "image": "mcr.microsoft.com/devcontainers/python:3.13",
-  "postStartCommand": "scripts/setup",
+  "postCreateCommand": "scripts/setup",
   "forwardPorts": [
     8123
   ],

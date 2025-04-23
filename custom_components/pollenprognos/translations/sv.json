@@ -22,7 +22,8 @@
         "title": "Pollenprognos - Pollen",
         "description": "Välja vilka pollen du vill övervaka",
         "data": {
-          "conf_pollen": "Välj pollen"
+          "conf_pollen": "Välj pollen",
+          "conf_numeric_state": "Använd numeriskt tillstånd"
         }
       }
     },
