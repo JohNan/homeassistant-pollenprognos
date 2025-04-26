@@ -6,6 +6,7 @@ import logging
 
 from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorDeviceClass
 from homeassistant.helpers.entity import EntityDescription
+from homeassistant.helpers.device_registry import DeviceInfo
 
 from .const import DOMAIN, SENSOR_ICONS, CONF_CITY, CONF_ALLERGENS, CONF_NAME, CONF_ALLERGENS_MAP, CONF_NUMERIC_STATE
 from .entity import PollenEntity
