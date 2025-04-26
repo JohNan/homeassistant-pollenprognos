@@ -7,7 +7,7 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 from homeassistant import config_entries
 from .api import PollenApi
-from .const import DOMAIN, CONF_ALLERGENS, CONF_NAME, CONF_CITY, CONF_URL
+from .const import DOMAIN, CONF_ALLERGENS, CONF_NAME, CONF_CITY, CONF_URL, CONF_NUMERIC_STATE
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -109,6 +109,7 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_select_pollen(self, user_input=None):
         if user_input is not None:
             self._init_info[CONF_ALLERGENS] = user_input[CONF_ALLERGENS]
+            self._init_info[CONF_NUMERIC_STATE] = user_input[CONF_NUMERIC_STATE]
             await self.async_set_unique_id(f"{self._init_info[CONF_CITY]}-{self._init_info[CONF_NAME]}")
             self._abort_if_unique_id_configured()
 
@@ -121,7 +122,8 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="select_pollen",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_ALLERGENS, default=list(pollen.keys())): cv.multi_select(pollen)
+                    vol.Required(CONF_ALLERGENS, default=list(pollen.keys())): cv.multi_select(pollen),
+                    vol.Optional(CONF_NUMERIC_STATE, default=False): bool
                 }
             )
         )

@@ -10,6 +10,7 @@ PLATFORMS = [SENSOR]
 
 CONF_CITY = 'conf_city'
 CONF_ALLERGENS = 'conf_allergens'
+CONF_NUMERIC_STATE = 'conf_numeric_state'
 CONF_ALLERGENS_MAP = 'conf_allergens_map'
 CONF_NAME = 'conf_name'
 CONF_URL = 'conf_url'
@@ -28,15 +29,15 @@ STATES = {
 SENSOR_ICONS = {
     'al': 'mdi:leaf',
     'alm': 'mdi:leaf',
-    'ambrosia': 'mdi:leaf',
+    'malörtsambrosia': 'mdi:leaf',
     'asp': 'mdi:leaf',
     'bok': 'mdi:leaf',
-    'bjork': 'mdi:leaf',
+    'björk': 'mdi:leaf',
     'ek': 'mdi:leaf',
-    'grabo': 'mdi:flower',
-    'gras': 'mdi:flower',
+    'gråbo': 'mdi:flower',
+    'gräs': 'mdi:flower',
     'hassel': 'mdi:leaf',
-    'salg_vide': 'mdi:leaf',
+    'sälg och viden': 'mdi:leaf',
     'default': 'mdi:leaf'
 }
 
