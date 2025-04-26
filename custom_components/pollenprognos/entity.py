@@ -6,14 +6,16 @@ from .const import DOMAIN, NAME, VERSION, CONF_NAME
 
 
 class PollenEntity(CoordinatorEntity):
+
+    _attr_attribution = "Palynologiska laboratoriet vid Naturhistoriska riksmuseet"
+    
     def __init__(self, coordinator, config_entry):
         super().__init__(coordinator)
         self.config_entry = config_entry
         self.device_info = DeviceInfo(
             identifiers={(DOMAIN, self.config_entry.data[CONF_NAME])},
             name=f"{NAME} {self.config_entry.data[CONF_NAME]}",
-            model=VERSION,
-            manufacturer="Data provided by Pollenrapporten.se"
+            model=VERSION
         )
 
     @property
