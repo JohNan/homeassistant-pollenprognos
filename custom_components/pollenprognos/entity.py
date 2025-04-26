@@ -21,6 +21,7 @@ class PollenEntity(CoordinatorEntity):
             "name": f"{NAME} {self.config_entry.data[CONF_NAME]}",
             "model": VERSION,
             "manufacturer": "Pollenprognos",
+            "attribution": "Data provided by Pollenrapporten.se",
         }
 
     @property
