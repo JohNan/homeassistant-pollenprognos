@@ -8,21 +8,17 @@ class PollenEntity(CoordinatorEntity):
     def __init__(self, coordinator, config_entry):
         super().__init__(coordinator)
         self.config_entry = config_entry
+        self.device_info = DeviceInfo(
+            identifiers={(DOMAIN, self.config_entry.data[CONF_NAME])},
+            name=f"{NAME} {self.config_entry.data[CONF_NAME]}",
+            model=VERSION,
+            manufacturer="Data provided by Pollenrapporten.se"
+        )
 
     @property
     def unique_id(self):
         """Return a unique ID to use for this entity."""
         return f"{self.config_entry.entry_id}-{self.name}"
-
-    @property
-    def device_info(self):
-        return {
-            "identifiers": {(DOMAIN, self.config_entry.data[CONF_NAME])},
-            "name": f"{NAME} {self.config_entry.data[CONF_NAME]}",
-            "model": VERSION,
-            "manufacturer": "Pollenprognos",
-            "attribution": "Data provided by Pollenrapporten.se",
-        }
 
     @property
     def add_state_attributes(self):
