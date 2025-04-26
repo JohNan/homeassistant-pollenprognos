@@ -7,10 +7,7 @@
 [![Project Maintenance][maintenance-shield]][user_profile]
 [![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
-Integration for monitoring pollen for locations in **Sweden** only.
-
-#### Important information
-To be able to use this integration you need a secret URL to be able to fetch the data. Ask around with your friends in the community.  
+Integration for monitoring pollen for locations in **Sweden** only. Data is provided by Pollenrapporten.se
 
 ### Install with HACS (recommended)
 Add the url to the repository as a custom integration.
@@ -24,6 +21,9 @@ This integration can be configured via the Home Assistant frontend.
 - Follow the instruction on screen to add the sensors.
 
 [Lovelace card to use with this integration.](https://github.com/isabellaalstrom/lovelace-pollenprognos-card)
+
+### Disclaimer
+This integration is not affiliated with Pollenrapporten.se
 
 ---
 
