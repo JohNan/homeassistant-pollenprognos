@@ -20,7 +20,10 @@ This integration can be configured via the Home Assistant frontend.
 - Search and select the **Pollenprognos** integration form the list.
 - Follow the instruction on screen to add the sensors.
 
-[Lovelace card to use with this integration.](https://github.com/krissen/pollenprognos-card)
+### Lovelace
+
+- [pollenprognos-card](https://github.com/krissen/pollenprognos-card) works with the current version (>=v1.1.0) of the integration, as well as earlier versions.
+- [lovelace-pollenprognos-card](https://github.com/isabellaalstrom/lovelace-pollenprognos-card) works with versions prior to v1.1.0 of the integration.
 
 ### Disclaimer
 This integration is not affiliated with Pollenrapporten.se
