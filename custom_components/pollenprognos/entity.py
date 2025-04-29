@@ -2,20 +2,23 @@
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, NAME, VERSION, CONF_NAME
+from . import PollenprognosConfigEntry, PollenprognosDataUpdateCoordinator
+from .const import DOMAIN, NAME, CONF_NAME
 
 
 class PollenEntity(CoordinatorEntity):
-
     _attr_attribution = "Palynologiska laboratoriet vid Naturhistoriska riksmuseet"
-    
-    def __init__(self, coordinator, config_entry):
+
+    def __init__(
+            self,
+            coordinator: PollenprognosDataUpdateCoordinator,
+            config_entry: PollenprognosConfigEntry
+    ):
         super().__init__(coordinator)
         self.config_entry = config_entry
-        self.device_info = DeviceInfo(
+        self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self.config_entry.data[CONF_NAME])},
-            name=f"{NAME} {self.config_entry.data[CONF_NAME]}",
-            model=VERSION
+            name=f"{NAME} {self.config_entry.data[CONF_NAME]}"
         )
 
     @property

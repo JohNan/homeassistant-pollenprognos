@@ -1,12 +1,8 @@
-from enum import Enum
+from enum import Enum, StrEnum
+
 """Pollenprognos Custom Update Version."""
 NAME = "Pollenprognos"
-VERSION = '1.0.0'
 DOMAIN = 'pollenprognos'
-
-# Platforms
-SENSOR = "sensor"
-PLATFORMS = [SENSOR]
 
 CONF_CITY = 'conf_city'
 CONF_ALLERGENS = 'conf_allergens'
@@ -43,7 +39,7 @@ SENSOR_ICONS = {
 
 BASE_URL = 'https://api.pollenrapporten.se'
 
-class Endpoints(Enum):
+class Endpoints(StrEnum):
     POLLEN_TYPES = '/v1/pollen-types'
     REGIONS = '/v1/regions'
     FORECASTS = '/v1/forecasts'
