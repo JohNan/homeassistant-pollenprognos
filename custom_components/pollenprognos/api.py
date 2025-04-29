@@ -90,23 +90,22 @@ class PollenApi:
         return self.cities
 
     async def async_get_forecast(self, region_id: str = ''):
-        if self.forecast is None:
-            if self.cities is None:
-                await self.async_get_cities()
-            if region_id == '':
-                region_id = self.cities[0].region_id
-            response = await self.request(
-                "get",
-                f"{BASE_URL}{Endpoints.FORECASTS.value}?region_id={region_id}&current=true"
-            )
-            forecast = {pollen: {} for pollen in self.pollen_types}
-            for item in response.get('items',[])[0].get('levelSeries',[]):
-                pollen_id = item['pollenId']
-                forecast[pollen_id][item['time']] = {
-                    'level_name': self.pollen_level_definitions[item['level']],
-                    'level': item['level'],
-                }
-            self.forecast = forecast
+        if self.cities is None:
+            await self.async_get_cities()
+        if region_id == '':
+            region_id = self.cities[0].region_id
+        response = await self.request(
+            "get",
+            f"{BASE_URL}{Endpoints.FORECASTS.value}?region_id={region_id}&current=true"
+        )
+        forecast = {pollen: {} for pollen in self.pollen_types}
+        for item in response.get('items',[])[0].get('levelSeries',[]):
+            pollen_id = item['pollenId']
+            forecast[pollen_id][item['time']] = {
+                'level_name': self.pollen_level_definitions[item['level']],
+                'level': item['level'],
+            }
+        self.forecast = forecast
         return self.forecast
     
     async def async_get_pollen_level_definitions(self):
