@@ -5,8 +5,10 @@ Support for getting current pollen levels
 import logging
 
 from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorDeviceClass
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityDescription
 
+from . import PollenprognosConfigEntry, PollenprognosDataUpdateCoordinator
 from .const import DOMAIN, SENSOR_ICONS, CONF_CITY, CONF_ALLERGENS, CONF_NAME, CONF_ALLERGENS_MAP, CONF_NUMERIC_STATE
 from .entity import PollenEntity
 from .api import PollenType
@@ -14,9 +16,13 @@ from .api import PollenType
 _LOGGER = logging.getLogger(__name__)
 
 
-async def async_setup_entry(hass, entry, async_add_devices):
+async def async_setup_entry(
+        hass: HomeAssistant,
+        entry: PollenprognosConfigEntry,
+        async_add_devices
+):
     """Setup sensor platform."""
-    coordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator = entry.runtime_data
     if not coordinator.data:
         return False
 
@@ -24,6 +30,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
 
     if len(pollens) == 0:
         return False
+
     async_add_devices([
         PollenSensor(pollen, coordinator, entry)
         for pollen in pollens if pollen.id in entry.data[CONF_ALLERGENS]
@@ -35,7 +42,12 @@ async def async_setup_entry(hass, entry, async_add_devices):
 class PollenSensor(PollenEntity):
     """Representation of a Pollen sensor."""
 
-    def __init__(self, pollen_type: PollenType, coordinator, config_entry):
+    def __init__(
+            self,
+            pollen_type: PollenType,
+            coordinator: PollenprognosDataUpdateCoordinator,
+            config_entry: PollenprognosConfigEntry
+    ):
         super().__init__(coordinator, config_entry)
         self._use_numeric_state = config_entry.data.get(CONF_NUMERIC_STATE, False)
         self._pollen_type = pollen_type
@@ -44,7 +56,6 @@ class PollenSensor(PollenEntity):
             device_class=SensorDeviceClass.ENUM if not self._use_numeric_state else None,
             key=self._pollen_type.id,
         )
-
 
     @property
     def _allergen(self):
@@ -79,7 +90,8 @@ class PollenSensor(PollenEntity):
             'forecast': dict(self._allergen),
             'tomorrow_raw': list(self._allergen)[1] if len(list(self._allergen)) > 1 else "n/a",
             'tomorrow_numeric_state': list(self._allergen)[1][-1]['level'] if len(list(self._allergen)) > 1 else 0,
-            'tomorrow_named_state': list(self._allergen)[1][-1]['level_name'] if len(list(self._allergen)) > 1 else "n/a",
+            'tomorrow_named_state': list(self._allergen)[1][-1]['level_name'] if len(
+                list(self._allergen)) > 1 else "n/a",
             'numeric_state': self._get_allergen_state(numeric_state=True),
             'named_state': self._get_allergen_state(numeric_state=False),
         }

@@ -1,13 +1,13 @@
 import asyncio
 import logging
-import operator
-
-import voluptuous as vol
 
 import homeassistant.helpers.config_validation as cv
+import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+
 from .api import PollenApi
-from .const import DOMAIN, CONF_ALLERGENS, CONF_NAME, CONF_CITY, CONF_URL, CONF_NUMERIC_STATE
+from .const import DOMAIN, CONF_ALLERGENS, CONF_NAME, CONF_CITY, CONF_NUMERIC_STATE
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -130,7 +130,7 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _async_task_fetch_cities(self):
         try:
-            client = PollenApi(self.hass)
+            client = PollenApi(session=async_get_clientsession(self.hass))
             self.data = await client.async_get_cities()
             _LOGGER.debug("Fetched data: %s", self.data)
         finally:
@@ -140,7 +140,7 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _async_task_fetch_pollen_types(self):
         try:
-            client = PollenApi(self.hass)
+            client = PollenApi(session=async_get_clientsession(self.hass))
             self.pollen_types = await client.async_get_pollen_types()
             _LOGGER.debug("Fetched data: %s", self.pollen_types)
         finally:
