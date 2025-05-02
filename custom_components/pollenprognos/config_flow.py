@@ -131,21 +131,11 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def _async_task_fetch_cities(self):
-        try:
-            client = PollenApi(session=async_get_clientsession(self.hass))
-            self.data = await client.async_get_cities()
-            _LOGGER.debug("Fetched data: %s", self.data)
-        finally:
-            self.hass.async_create_task(
-                self.hass.config_entries.flow.async_configure(flow_id=self.flow_id)
-            )
+        client = PollenApi(session=async_get_clientsession(self.hass))
+        self.data = await client.async_get_cities()
+        _LOGGER.debug("Fetched data: %s", self.data)
 
     async def _async_task_fetch_pollen_types(self):
-        try:
-            client = PollenApi(session=async_get_clientsession(self.hass))
-            self.pollen_types = await client.async_get_pollen_types()
-            _LOGGER.debug("Fetched data: %s", self.pollen_types)
-        finally:
-            self.hass.async_create_task(
-                self.hass.config_entries.flow.async_configure(flow_id=self.flow_id)
-            )
+        client = PollenApi(session=async_get_clientsession(self.hass))
+        self.pollen_types = await client.async_get_pollen_types()
+        _LOGGER.debug("Fetched data: %s", self.pollen_types)
