@@ -9,9 +9,9 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityDescription
 
 from . import PollenprognosConfigEntry, PollenprognosDataUpdateCoordinator
-from .const import DOMAIN, SENSOR_ICONS, CONF_CITY, CONF_ALLERGENS, CONF_NAME, CONF_ALLERGENS_MAP, CONF_NUMERIC_STATE
-from .entity import PollenEntity
 from .api import PollenType
+from .const import SENSOR_ICONS, CONF_ALLERGENS, CONF_NAME, CONF_NUMERIC_STATE
+from .entity import PollenEntity
 
 _LOGGER = logging.getLogger(__name__)
 
