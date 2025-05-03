@@ -30,7 +30,7 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle a flow initialized by the user."""
         errors = {}
         try:
-            return await self.async_step_fetch_cities()
+            return await self.async_step_select_city()
         except vol.Invalid:
             errors["base"] = "bad_host"
 
@@ -97,7 +97,11 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             self._init_info[CONF_CITY] = user_input[CONF_CITY]
             self._init_info[CONF_NAME] = next(item for item in self.data if item.region_id == self._init_info[CONF_CITY]).name
-            return await self.async_step_fetch_pollen_types()
+            return await self.async_step_select_pollen()
+
+        if self.data is None:
+            await self._async_task_fetch_cities()
+
         cities = {city.region_id: city.name for city in self.data}
         return self.async_show_form(
             step_id="select_city",
@@ -118,6 +122,10 @@ class PollenprognosFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_create_entry(
                 title=self._init_info[CONF_NAME], data=self._init_info
             )
+
+        if self.pollen_types is None:
+            await self._async_task_fetch_pollen_types()
+
         pollen = {pollen.id: pollen.name for pollen in self.pollen_types}
 
         return self.async_show_form(
