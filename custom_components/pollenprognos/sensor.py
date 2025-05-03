@@ -61,10 +61,6 @@ class PollenSensor(PollenEntity):
         )
 
     @property
-    def _allergen(self):
-        return iter(self.coordinator.data[self._pollen_type].items())
-
-    @property
     def forecast(self) -> Optional[PollenForecast]:
         return self.coordinator.data.get(self.pollen_id)
 
@@ -93,15 +89,8 @@ class PollenSensor(PollenEntity):
     def _get_allergen_state(self, numeric_state: bool):
         today = self.get_today_forecast()
         if today:
-            if numeric_state:
-                return today['level']
-            else:
-                return today['level_name']
-
-        if numeric_state:
-            return 0
-        else:
-            return 'n/a'
+            return today['level'] if numeric_state else today['level_name']
+        return 0 if numeric_state else 'n/a'
 
     @property
     def extra_state_attributes(self):
