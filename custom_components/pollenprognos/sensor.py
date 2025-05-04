@@ -97,8 +97,8 @@ class PollenSensor(PollenEntity):
         attributes = {
             'forecast': list(self.forecast.values()),
             'tomorrow_raw': self.get_tomorrow_forecast() or "n/a",
-            'tomorrow_numeric_state': self.get_tomorrow_forecast().get('level', 0) if self.get_tomorrow_forecast() else None,
-            'tomorrow_named_state': self.get_tomorrow_forecast().get('level_name', 0) if self.get_tomorrow_forecast() else None,
+            'tomorrow_numeric_state': (tomorrow_forecast['level'] if (tomorrow_forecast := self.get_tomorrow_forecast()) else 0),
+            'tomorrow_named_state': (tomorrow_forecast['level_name'] if tomorrow_forecast else 'n/a'),
             'raw': self.get_today_forecast() or "n/a",
             'numeric_state': self._get_allergen_state(numeric_state=True),
             'named_state': self._get_allergen_state(numeric_state=False),
