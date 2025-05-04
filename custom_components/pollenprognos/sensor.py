@@ -4,12 +4,15 @@ Support for getting current pollen levels
 
 import logging
 
+from datetime import datetime, timedelta
+from typing import Optional, Dict
+
 from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorDeviceClass
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityDescription
 
 from . import PollenprognosConfigEntry, PollenprognosDataUpdateCoordinator
-from .api import PollenType
+from .api import WeeklyPollenForecast, PollenType, DailyForecast, PollenForecast
 from .const import SENSOR_ICONS, CONF_ALLERGENS, CONF_NAME, CONF_NUMERIC_STATE
 from .entity import PollenEntity
 
@@ -58,8 +61,8 @@ class PollenSensor(PollenEntity):
         )
 
     @property
-    def _allergen(self):
-        return iter(self.coordinator.data[self._pollen_type].items())
+    def forecast(self) -> Optional[PollenForecast]:
+        return self.coordinator.data.get(self._pollen_type)
 
     @property
     def name(self):
@@ -71,27 +74,32 @@ class PollenSensor(PollenEntity):
         """Return the state of the device."""
         return self._get_allergen_state(self._use_numeric_state)
 
-    def _get_allergen_state(self, numeric_state: bool):
-        allergen = next(self._allergen)
-        if allergen and allergen[-1]:
-            if numeric_state:
-                return allergen[-1]['level']
-            else:
-                return allergen[-1]['level_name']
+    def get_today_forecast(self) -> Optional[DailyForecast]:
+        if not self.forecast:
+            return None
+        today_str = datetime.now().strftime('%Y-%m-%dT00:00:00')
+        return self.forecast.get(today_str)
 
-        if numeric_state:
-            return 0
-        else:
-            return 'n/a'
+    def get_tomorrow_forecast(self) -> Optional[DailyForecast]:
+        if not self.forecast:
+            return None
+        tomorrow_str = (datetime.now() + timedelta(days=1)).strftime('%Y-%m-%dT00:00:00')
+        return self.forecast.get(tomorrow_str)
+
+    def _get_allergen_state(self, numeric_state: bool):
+        today = self.get_today_forecast()
+        if today:
+            return today['level'] if numeric_state else today['level_name']
+        return 0 if numeric_state else 'n/a'
 
     @property
     def extra_state_attributes(self):
         attributes = {
-            'forecast': dict(self._allergen),
-            'tomorrow_raw': list(self._allergen)[1] if len(list(self._allergen)) > 1 else "n/a",
-            'tomorrow_numeric_state': list(self._allergen)[1][-1]['level'] if len(list(self._allergen)) > 1 else 0,
-            'tomorrow_named_state': list(self._allergen)[1][-1]['level_name'] if len(
-                list(self._allergen)) > 1 else "n/a",
+            'forecast': list(self.forecast.values()),
+            'tomorrow_raw': self.get_tomorrow_forecast() or "n/a",
+            'tomorrow_numeric_state': (tomorrow_forecast['level'] if (tomorrow_forecast := self.get_tomorrow_forecast()) else 0),
+            'tomorrow_named_state': (tomorrow_forecast['level_name'] if tomorrow_forecast else 'n/a'),
+            'raw': self.get_today_forecast() or "n/a",
             'numeric_state': self._get_allergen_state(numeric_state=True),
             'named_state': self._get_allergen_state(numeric_state=False),
         }
