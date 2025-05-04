@@ -9,7 +9,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import UpdateFailed, DataUpdateCoordinator
 
-from .api import PollenApi, PollenForecast
+from .api import PollenApi, WeeklyPollenForecast
 from .const import DOMAIN, CONF_URL, CONF_CITY
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -54,7 +54,7 @@ async def async_reload_entry(hass: HomeAssistant, entry: PollenprognosConfigEntr
     await hass.config_entries.async_reload(entry.entry_id)
 
 
-class PollenprognosDataUpdateCoordinator(DataUpdateCoordinator[PollenForecast]):
+class PollenprognosDataUpdateCoordinator(DataUpdateCoordinator[WeeklyPollenForecast]):
     """Class to manage fetching data from the API."""
 
     def __init__(

@@ -2,7 +2,7 @@ import asyncio
 import logging
 import socket
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Dict
 
 import aiohttp
 import async_timeout
@@ -18,7 +18,9 @@ HEADERS = {
     "accept": "application/json"
 }
 
-type PollenForecast = dict[PollenType, dict[str, dict[str, str]]]
+type WeeklyPollenForecast = Dict[PollenType, Dict[str, Dict[str, str]]]
+type PollenForecast = Dict[str, Dict[str, str]]
+type DailyForecast = Dict[str, str]
 
 
 @dataclass
@@ -88,10 +90,11 @@ class PollenApi:
             response = await self.get_request(
                 f"{BASE_URL}{Endpoints.FORECASTS}?region_id={region_id}&current=true"
             )
-            forecast: PollenForecast = {pollen: {} for pollen in self._pollen_types}
+            forecast: WeeklyPollenForecast = {pollen: {} for pollen in self._pollen_types}
             for item in response.get('items', [])[0].get('levelSeries', []):
                 pollen_id = item['pollenId']
                 forecast[pollen_id][item['time']] = {
+                    'time': item['time'],
                     'level_name': self._pollen_level_definitions[item['level']],
                     'level': item['level'],
                 }

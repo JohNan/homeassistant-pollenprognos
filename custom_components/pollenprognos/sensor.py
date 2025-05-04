@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityDescription
 
 from . import PollenprognosConfigEntry, PollenprognosDataUpdateCoordinator
-from .api import PollenForecast, PollenType
+from .api import WeeklyPollenForecast, PollenType, DailyForecast, PollenForecast
 from .const import SENSOR_ICONS, CONF_ALLERGENS, CONF_NAME, CONF_NUMERIC_STATE
 from .entity import PollenEntity
 
@@ -61,6 +61,10 @@ class PollenSensor(PollenEntity):
         )
 
     @property
+    def pollen_id(self):
+        return self._pollen_type.id
+
+    @property
     def forecast(self) -> Optional[PollenForecast]:
         return self.coordinator.data.get(self.pollen_id)
 
@@ -95,10 +99,11 @@ class PollenSensor(PollenEntity):
     @property
     def extra_state_attributes(self):
         attributes = {
-            'forecast': self.forecast,
+            'forecast': list(self.forecast.values()),
             'tomorrow_raw': self.get_tomorrow_forecast() or "n/a",
             'tomorrow_numeric_state': self.get_tomorrow_forecast().get('level', 0),
             'tomorrow_named_state': self.get_tomorrow_forecast().get('level_name', 0),
+            'raw': self.get_today_forecast() or "n/a",
             'numeric_state': self._get_allergen_state(numeric_state=True),
             'named_state': self._get_allergen_state(numeric_state=False),
         }
