@@ -61,12 +61,8 @@ class PollenSensor(PollenEntity):
         )
 
     @property
-    def pollen_id(self):
-        return self._pollen_type.id
-
-    @property
     def forecast(self) -> Optional[PollenForecast]:
-        return self.coordinator.data.get(self.pollen_id)
+        return self.coordinator.data.get(self._pollen_type)
 
     @property
     def name(self):
