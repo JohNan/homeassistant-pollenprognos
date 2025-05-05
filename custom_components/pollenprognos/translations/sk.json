@@ -23,6 +23,7 @@
         "description": "Vyberte peľ, ktorý chcete monitorovať",
         "data": {
           "conf_pollen": "Vyberte peľ"
+          "conf_numeric_state": "Použiť číselný stav"
         }
       }
     },
