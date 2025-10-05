@@ -21,9 +21,6 @@ type PollenprognosConfigEntry = ConfigEntry[PollenprognosDataUpdateCoordinator]
 
 async def async_setup_entry(hass: HomeAssistant, entry: PollenprognosConfigEntry):
     """Set up this integration using UI."""
-    if hass.data.get(DOMAIN) is None:
-        hass.data.setdefault(DOMAIN, {})
-
     client = PollenApi(session=async_get_clientsession(hass))
 
     coordinator = PollenprognosDataUpdateCoordinator(hass, client=client, entry=entry)
@@ -42,11 +39,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: PollenprognosConfigEntry
 
 async def async_unload_entry(hass: HomeAssistant, entry: PollenprognosConfigEntry) -> bool:
     """Handle removal of an entry."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
-
-    return unload_ok
+    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
 async def async_reload_entry(hass: HomeAssistant, entry: PollenprognosConfigEntry) -> None:
