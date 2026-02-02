@@ -10,6 +10,7 @@ from typing import Optional, Dict
 from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorDeviceClass
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityDescription
+from homeassistant.util import slugify
 
 from . import PollenprognosConfigEntry, PollenprognosDataUpdateCoordinator
 from .api import WeeklyPollenForecast, PollenType, DailyForecast, PollenForecast
@@ -54,7 +55,7 @@ class PollenSensor(PollenEntity):
         super().__init__(coordinator, config_entry)
         self._use_numeric_state = config_entry.data.get(CONF_NUMERIC_STATE, False)
         self._pollen_type = pollen_type
-        self.entity_id = ENTITY_ID_FORMAT.format(f"pollen_{self.config_entry.data[CONF_NAME]}_{self._pollen_type.name}")
+        self.entity_id = ENTITY_ID_FORMAT.format(slugify(f"pollen_{self.config_entry.data[CONF_NAME]}_{self._pollen_type.name}"))
         self.entity_description = EntityDescription(
             device_class=SensorDeviceClass.ENUM if not self._use_numeric_state else None,
             key=self._pollen_type.id,
