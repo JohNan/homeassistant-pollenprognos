@@ -7,7 +7,7 @@
 [![Project Maintenance][maintenance-shield]][user_profile]
 [![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
-Integration for monitoring pollen for locations in **Sweden** only. Data is provided by Pollenrapporten.se
+Integration for monitoring pollen for locations in **Sweden** only. Data is provided by Palynological Laboratory, Swedish museum of Natural History.
 
 ### Install with HACS (recommended)
 Add the url to the repository as a custom integration.
@@ -25,7 +25,6 @@ This integration can be configured via the Home Assistant frontend.
 - [pollenprognos-card](https://github.com/krissen/pollenprognos-card) works with the current version (>=v1.1.0) of the integration, as well as earlier versions.
 - [lovelace-pollenprognos-card](https://github.com/isabellaalstrom/lovelace-pollenprognos-card) works with versions prior to v1.1.0 of the integration.
 
-Data is provided by Palynological Laboratory, Swedish museum of Natural History.
 ---
 
 [buymecoffee]: https://www.buymeacoffee.com/JohNan
