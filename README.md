@@ -25,9 +25,7 @@ This integration can be configured via the Home Assistant frontend.
 - [pollenprognos-card](https://github.com/krissen/pollenprognos-card) works with the current version (>=v1.1.0) of the integration, as well as earlier versions.
 - [lovelace-pollenprognos-card](https://github.com/isabellaalstrom/lovelace-pollenprognos-card) works with versions prior to v1.1.0 of the integration.
 
-### Disclaimer
-This integration is not affiliated with Pollenrapporten.se
-
+Data is provided by Palynological Laboratory, Swedish museum of Natural History.
 ---
 
 [buymecoffee]: https://www.buymeacoffee.com/JohNan
