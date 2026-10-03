@@ -57,6 +57,10 @@ class PollenApi:
     _pollen_types: list[PollenType] = None
     _cities: list[City] = None
     _pollen_level_definitions: list[str] = None
+    # True when the current forecast is the season's last one
+    # (pollenrapporten.se sets isEndOfSeason); the forecast is then empty
+    # until the new season starts.
+    end_of_season: bool = False
 
     def __init__(self, session: ClientSession) -> None:
         self._session = session
@@ -91,7 +95,9 @@ class PollenApi:
                 f"{BASE_URL}{Endpoints.FORECASTS}?region_id={region_id}&current=true"
             )
             forecast: WeeklyPollenForecast = {pollen: {} for pollen in self._pollen_types}
-            for item in response.get('items', [])[0].get('levelSeries', []):
+            current = response.get('items', [])[0]
+            self.end_of_season = bool(current.get('isEndOfSeason', False))
+            for item in current.get('levelSeries', []):
                 pollen_id = item['pollenId']
                 forecast[pollen_id][item['time']] = {
                     'time': item['time'],
