@@ -62,6 +62,7 @@ class PollenprognosDataUpdateCoordinator(DataUpdateCoordinator[WeeklyPollenForec
         self._api = client
         self._region_id = self._entry.data[CONF_CITY]
         self.last_updated = None
+        self.end_of_season = False
 
     async def _async_setup(self):
         await self._api.async_get_pollen_level_definitions()
@@ -71,6 +72,7 @@ class PollenprognosDataUpdateCoordinator(DataUpdateCoordinator[WeeklyPollenForec
         """Update data via library."""
         try:
             data = await self._api.async_get_forecast(region_id=self._region_id)
+            self.end_of_season = self._api.end_of_season
             self.last_updated = datetime.now()
             return data
         except Exception as exception:
